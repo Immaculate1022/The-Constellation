@@ -6,6 +6,14 @@ One app for the entire Infinite Optical Fabric portfolio. All 26 repositories, c
 
 > "We did not invent this topology. We recognized it."
 
+## Start here (30 seconds)
+
+- **What is this?** One researcher's open portfolio — photonic/resonant computing concepts, endpoint security, geometry instruments, coexistence frameworks — presented as a single navigable constellation.
+- **What can I actually run?** The unified app below, in any browser. Per project, the runnable pieces are labeled in the ledger.
+- **Demonstration or hypothesis?** Every project carries a status label (WORKING CODE / RUNNABLE DEMO / SIMULATION / HYPOTHESIS / SPEC / PLACEHOLDER / ARCHIVED). The full claim-and-status ledger is **[ORIENTATION.md](ORIENTATION.md)**.
+- **Where is the underlying code?** In each project's own repository — this repo stays thin on purpose: the map, and the app.
+- **How can I reproduce or test something?** Start with the three testable cores: `cargo test` in AHR-Endpoint, `pytest` in IOF-Resonance-Core, and the TFLN test plan's own falsification criteria. Details in [ORIENTATION.md](ORIENTATION.md).
+
 ## Live app
 
 **https://immaculate1022.github.io/The-Constellation/**
@@ -25,7 +33,7 @@ Runs in any browser, phone or desktop. No install, no build step.
 
 ## Source map
 
-The unified app is a showcase shell; the canonical sources live in their own repos — [IOF-Resonance](https://github.com/Immaculate1022/IOF-Resonance), [IOF-Resonance-Core](https://github.com/Immaculate1022/IOF-Resonance-Core), [AHR-Endpoint](https://github.com/Immaculate1022/AHR-Endpoint), [SentinelX](https://github.com/Immaculate1022/SentinelX), and the rest of the [portfolio](https://github.com/Immaculate1022?tab=repositories).
+The unified app is a showcase shell; the canonical sources live in their own repos — [IOF-Resonance](https://github.com/Immaculate1022/IOF-Resonance), [IOF-Resonance-Core](https://github.com/Immaculate1022/IOF-Resonance-Core), [AHR-Endpoint](https://github.com/Immaculate1022/AHR-Endpoint), [SentinelX](https://github.com/Immaculate1022/SentinelX), and the rest of the [portfolio](https://github.com/Immaculate1022?tab=repositories). [ORIENTATION.md](ORIENTATION.md) is the full navigational map.
 
 ## License
 
