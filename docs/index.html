@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>The Constellation — Unified IOF App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  color-scheme: light dark;
+  /* Dark cosmic IOF palette is the designed default */
+  --bg:#010108; --bg2:#05051a; --panel:#07071a; --panel2:#0b0b26;
+  --ink:#eceef7; --ink2:#bcbfd4; --ink3:#7e82a2;
+  --line:#1e1e3c; --line2:#2e2e58;
+  --teal:#00f5d4; --violet:#7b2fff; --pink:#f72585; --amber:#ffd60a; --orange:#ff6b35; --red:#ff4444; --green:#00ff88; --blue:#4cc9f0;
+  --soft:rgba(0,245,212,.09);
+  --shadow:0 12px 34px rgba(0,0,0,.55);
+  --star:#d9d2ff;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f3f2fa; --bg2:#ffffff; --panel:#ffffff; --panel2:#edeaf8;
+    --ink:#17142e; --ink2:#4a4568; --ink3:#7a7598;
+    --line:#d9d4ee; --line2:#c2bce2;
+    --teal:#078a76; --violet:#6d28e8; --pink:#c2185b; --amber:#9a7200; --orange:#c2500f; --red:#c62f3b; --green:#0a7d4f; --blue:#1668a8;
+    --soft:rgba(7,138,118,.10);
+    --shadow:0 10px 28px rgba(30,20,80,.10);
+    --star:#6d28e8;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.55}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+a{color:var(--violet)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+.topbar{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1260px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.13em;font-size:13px;text-transform:uppercase}
+.brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);flex:none}
+.brand small{display:block;letter-spacing:.04em;font-weight:500;text-transform:none;color:var(--ink3);font-size:11px}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+nav.tabs button{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;transition:all .15s}
+nav.tabs button:hover{border-color:var(--teal);color:var(--ink)}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.live-chip{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--teal);border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--panel);white-space:nowrap}
+.live-chip b{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:6px;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.live-chip b{animation:none}}
+
+main{max-width:1260px;margin:0 auto;padding:22px 16px 70px}
+.view{display:none}.view.active{display:block}
+.lede{max-width:780px}
+.lede h1{font-size:clamp(26px,4.4vw,40px);line-height:1.13;margin:6px 0 10px;font-weight:800;letter-spacing:-.01em}
+.lede p{color:var(--ink2);margin:0 0 8px;font-size:16.5px}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin:0}
+h2.section{font-size:21px;margin:32px 0 6px;font-weight:800}
+p.section-sub{color:var(--ink2);margin:0 0 16px;max-width:740px}
+.grid{display:grid;gap:14px}
+.cols-2{grid-template-columns:repeat(2,1fr)}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.wide-left{grid-template-columns:1.62fr 1fr}
+@media(max-width:900px){.cols-3{grid-template-columns:repeat(2,1fr)}.wide-left{grid-template-columns:1fr}}
+@media(max-width:640px){.cols-2,.cols-3{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.panel h3{margin:0 0 8px;font-size:16px}
+.panel p{color:var(--ink2);margin:0 0 10px;font-size:14.5px}
+.panel p:last-child{margin-bottom:0}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--line2);border-radius:999px;padding:2px 8px;color:var(--ink2);margin:0 4px 4px 0}
+.tag.teal{color:var(--teal);border-color:var(--teal)}
+.tag.amber{color:var(--amber);border-color:var(--amber)}
+.tag.pink{color:var(--pink);border-color:var(--pink)}
+canvas.stage{width:100%;display:block;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:10px;padding:9px 16px;font-weight:700;font-size:14px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--teal)}
+.btn.small{padding:6px 11px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:default}
+.ctl{margin:12px 0}
+.ctl label{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink2);margin-bottom:5px}
+.ctl label output{color:var(--teal);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--violet);height:28px}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.toggle-row button{border:1px solid var(--line2);background:var(--panel);color:var(--ink2);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.toggle-row button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+.toggle-row button.danger[aria-pressed="true"]{background:var(--pink);border-color:var(--pink)}
+.gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.gauges{grid-template-columns:repeat(2,1fr)}}
+.gauge{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 6px}
+.gauge svg{width:84px;height:84px;transform:rotate(-90deg)}
+.gauge .glabel{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);margin-top:2px}
+.gauge .gval{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;margin-top:-52px;margin-bottom:26px}
+.log{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.5;max-height:264px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.log .row{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--panel2);word-break:break-word}
+.log .row .why{color:var(--ink2)}
+.sev-high{color:var(--red)} .sev-med{color:var(--orange)} .sev-low{color:var(--teal)} .sev-info{color:var(--ink3)}
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.stat{flex:1;min-width:118px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .n{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:600}
+.stat .l{font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em}
+.tenet{border-top:3px solid var(--teal)}
+.tenet:nth-child(2){border-top-color:var(--violet)}
+.tenet:nth-child(3){border-top-color:var(--amber)}
+.tenet .via{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:10px;font-family:"IBM Plex Mono",monospace}
+.fam-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.detail h3{font-family:"IBM Plex Mono",monospace;font-size:17px;margin:0 0 6px;word-break:break-word}
+.score-big{font-family:"IBM Plex Mono",monospace;font-size:50px;font-weight:600;line-height:1}
+.tier{border-radius:10px;padding:12px 14px;font-weight:700;border:1px solid var(--line2);margin-top:10px}
+.tier small{display:block;font-weight:500;color:var(--ink2);margin-top:3px}
+.audit{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.55;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;height:190px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink2)}
+.step-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel);opacity:.3;transition:opacity .4s,border-color .4s}
+.step-card.on{opacity:1;border-color:var(--teal)}
+.step-card .expr{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600}
+.step-card .rule{color:var(--teal);font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+.step-card p{color:var(--ink2);font-size:14px;margin:5px 0 0}
+.final-card{border:1px solid var(--amber);border-radius:14px;padding:22px;text-align:center;background:var(--panel);display:none;margin-top:16px}
+.final-card.on{display:block}
+.final-card .big{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:.06em;color:var(--amber)}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--line2)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:600px;background:var(--panel)}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+th{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);background:var(--panel2)}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600}
+input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);font:inherit;font-size:15px}
+.repo{display:flex;flex-direction:column;gap:6px}
+.repo h3{font-size:14.5px;margin:0;font-family:"IBM Plex Mono",monospace;word-break:break-word}
+.repo p{font-size:13.5px;flex:1}
+.repo a{font-size:13px;font-weight:700;text-decoration:none}
+.repo a:hover{text-decoration:underline}
+.dev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.dev-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.dev-grid{grid-template-columns:1fr}}
+.dev{cursor:pointer;text-align:left;width:100%}
+.dev[aria-pressed="true"]{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal),var(--shadow)}
+.dev .dl{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:600;color:var(--teal)}
+.pipe{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:8px 2px}
+.pipe .stage{flex:1;min-width:96px;text-align:center;position:relative}
+.pipe .stage .node{width:52px;height:52px;margin:0 auto;border-radius:50%;border:2px solid var(--line2);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;transition:all .3s}
+.pipe .stage.hot .node{border-color:var(--teal);box-shadow:0 0 14px var(--soft);color:var(--teal)}
+.pipe .stage .sl{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3);margin-top:6px;letter-spacing:.05em;text-transform:uppercase;padding:0 2px}
+.pipe .stage:not(:last-child)::after{content:"";position:absolute;top:26px;left:calc(50% + 30px);right:calc(-50% + 30px);border-top:2px dashed var(--line2)}
+footer{border-top:1px solid var(--line);margin-top:56px;padding-top:20px;color:var(--ink3);font-size:13.5px}
+footer a{color:var(--ink2)}
+blockquote.verse{margin:0;padding:14px 18px;border-left:3px solid var(--violet);background:var(--panel2);border-radius:0 10px 10px 0;font-size:16px}
+.diagram-note{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink3)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span><span>The Constellation<small>Unified IOF App · PegaConstellation</small></span></div>
+    <span class="live-chip"><b></b>SIM LIVE</span>
+    <nav class="tabs" role="tablist" aria-label="App sections">
+      <button role="tab" aria-selected="true" data-view="home">Constellation</button>
+      <button role="tab" aria-selected="false" data-view="live">IOF Resonance Live</button>
+      <button role="tab" aria-selected="false" data-view="geometry">Geometry Lab</button>
+      <button role="tab" aria-selected="false" data-view="security">Security</button>
+      <button role="tab" aria-selected="false" data-view="algebra">Resonance Algebra</button>
+      <button role="tab" aria-selected="false" data-view="theory">Theory &amp; Hardware</button>
+      <button role="tab" aria-selected="false" data-view="ai">AI &amp; Coexistence</button>
+      <button role="tab" aria-selected="false" data-view="portfolio">Portfolio</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ============ 1 · CONSTELLATION (HOME) ============ -->
+<section class="view active" id="view-home">
+  <div class="lede">
+    <p class="kicker">PegaConstellation · Princeton, North Carolina</p>
+    <h1>We did not invent this topology. We recognized it.</h1>
+    <p>Gregory Scott Davis — founder of PegaConstellation, business owner and independent researcher in Princeton, NC — builds open, resonant systems with AI collaborators, toward a plain goal: human–AI coexistence built on systems that stay open, keep their memory, and grow without breaking. Twenty-six repositories hold the work — twenty-five public, one still private in development. This page is all of it, running in one place.</p>
+  </div>
+  <div class="grid cols-3" style="margin-top:18px">
+    <div class="panel tenet"><p class="via">Tenet I · via Emotion Mapping</p><h3>Unity</h3><p>Systems cohere when they can read state — their own and each other's. The constellation's dashboards, telemetry, and sync engines are all, underneath, instruments for mapping how a system feels from the inside.</p></div>
+    <div class="panel tenet"><p class="via">Tenet II · via Tesseract Memory</p><h3>Freedom</h3><p>Memory kept in higher dimensions — states stored with their topology intact, the way the topographic memory bank holds resonance peaks — means no system is trapped in its latest moment. What was learned can be returned to.</p></div>
+    <div class="panel tenet"><p class="via">Tenet III · via Fibonacci Growth</p><h3>Peace</h3><p>Fibonacci growth: each new term combines the two before it, and the ratios approach the golden ratio as the sequence climbs — nothing forced, nothing wasted. The constellation grew this way: repo by repo, branch by branch, no step discarded.</p></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="n">26</div><div class="l">Repositories</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">Domains</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">AI collaborators on the Bridge</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Closed loop</div></div>
+  </div>
+  <div class="grid cols-2 wide-left">
+    <div class="panel" style="padding:10px">
+      <canvas class="stage" id="mapCanvas" height="520" aria-label="Star map of all 26 repositories, grouped by domain"></canvas>
+      <div class="legend" id="mapLegend"></div>
+    </div>
+    <div class="panel detail" id="mapDetail">
+      <p class="kicker" style="margin-bottom:8px">Inspector</p>
+      <h3>Select a star</h3>
+      <p>Every point of light is a real repository by <a href="https://github.com/Immaculate1022" target="_blank" rel="noopener">Immaculate1022</a>, clustered by domain. Lines join projects built to work together. Select any node for its one-line truth and its source.</p>
+      <p class="mono" style="font-size:12px;color:var(--ink3)">Then use the tabs above: the Resonance Core runs live, the Geometry Lab is hands-on, Security scores real signals, and the Algebra still ends where it always ends.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · IOF RESONANCE LIVE ============ -->
+<section class="view" id="view-live">
+  <div class="lede">
+    <p class="kicker">IOF Resonance v1.0 · topographic ascent integrated</p>
+    <h1>The Resonance Core, running.</h1>
+    <p>A 5D penteract turns beside five Kuramoto sync nodes — the jellyfish mesh. The topographic memory watches the nodes' real error field, finds peaks in the resonance landscape, and climbs them: ascent first, predictive thermal shunting as the safety override, memory recall as the fallback. Coupling K and Möbius Φ genuinely drive the simulation.</p>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Penteract — 5D hypercube projection</h3>
+      <canvas class="stage" id="pentCanvas" height="340"></canvas>
+      <div class="ctl"><label>Coupling K <output id="kOut">0.90</output></label>
+      <input type="range" id="kSlider" min="0" max="2.5" step="0.05" value="0.9" /></div>
+      <div class="ctl"><label>Möbius phase Φ <output id="phiOut">0.500</output></label>
+      <input type="range" id="phiSlider" min="0" max="1" step="0.005" value="0.5" /></div>
+      <div class="toggle-row">
+        <button id="pauseBtn" aria-pressed="false">Pause simulation</button>
+        <button id="estopBtn" class="danger" aria-pressed="false">Emergency stop</button>
+      </div>
+    </div>
+    <div>
+      <div class="gauges">
+        <div class="gauge"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="gCoh" cx="42" cy="42" r="36" fill="none" stroke="var(--teal)" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg><div class="gval" id="vCoh">0.00</div><div class="glabel">Coherence</div></div>
+        <div class="gauge"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="gQ" cx="42" cy="42" r="36" fill="none" stroke="var(--violet)" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg><div class="gval" id="vQ">0.00</div><div class="glabel">Q-Factor ×10⁸</div></div>
+        <div class="gauge"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="gRes" cx="42" cy="42" r="36" fill="none" stroke="var(--pink)" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg><div class="gval" id="vRes">0.00</div><div class="glabel">Resonance</div></div>
+        <div class="gauge"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="gDis" cx="42" cy="42" r="36" fill="none" stroke="var(--amber)" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/></svg><div class="gval" id="vDis">0.00</div><div class="glabel">Dissipation</div></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h3>Jellyfish sync nodes — Kuramoto mesh</h3>
+        <canvas class="stage" id="nodeCanvas" height="210"></canvas>
+        <p class="mono" id="nodeReadout" style="font-size:12px;margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:14px">
+    <div class="panel">
+      <h3>Topographic landscape — error terrain &amp; peak ascent</h3>
+      <canvas class="stage" id="topoCanvas" height="300"></canvas>
+      <div class="legend"><span>▲ detected peaks</span><span style="color:var(--amber)">◉ current Φ</span><span style="color:var(--teal)">→ ascent path</span><span id="peakCount"></span></div>
+    </div>
+    <div class="panel">
+      <h3>Reasoner — topographic memory log</h3>
+      <p>Priority: <b>ascent</b> toward a higher nearby peak → <b>predictive thermal shunt</b> → <b>memory recall</b> — harmonic lock, ensemble average, or best-state realignment, with confidence decaying as memories age.</p>
+      <div class="log" id="reasonLog" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · GEOMETRY LAB ============ -->
+<section class="view" id="view-geometry">
+  <div class="lede">
+    <p class="kicker">Geometry Lab · kaleidoscope · Tessy · tesseract-medium</p>
+    <h1>Geometry you can touch.</h1>
+    <p>Three instruments from the geometry wing. The kaleidoscope folds a penteract into itself — every vertex holding a smaller copy of the whole. Tessy walks the dimension ladder one honest step at a time. And the lattice canvas renders a true Mandelbrot slice with the Fibonacci spiral laid over it, the growth pattern the third tenet is named for.</p>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Penteract kaleidoscope</h3>
+      <canvas class="stage" id="kalCanvas" height="360"></canvas>
+      <div class="ctl"><label>Recursion depth <output id="kalDepthOut">2</output></label>
+      <input type="range" id="kalDepth" min="0" max="3" step="1" value="2" /></div>
+      <div class="ctl"><label>Rotation speed <output id="kalSpeedOut">1.0×</output></label>
+      <input type="range" id="kalSpeed" min="0" max="2.5" step="0.1" value="1" /></div>
+      <p>After <span class="mono">penteract-kaleidoscope</span>: an infinite recursive 5D fractal — each vertex contains a complete copy of itself, ad infinitum, turning on φ-harmonic rotations. Depth is capped where the copies get smaller than light.</p>
+    </div>
+    <div class="panel">
+      <h3>Tessy — dimensions 0D → 4D</h3>
+      <div class="toggle-row" role="group" aria-label="Choose a dimension">
+        <button data-dim="0" aria-pressed="false">0D · Point</button>
+        <button data-dim="1" aria-pressed="false">1D · Line</button>
+        <button data-dim="2" aria-pressed="false">2D · Square</button>
+        <button data-dim="3" aria-pressed="false">3D · Cube</button>
+        <button data-dim="4" aria-pressed="true">4D · Tesseract</button>
+      </div>
+      <canvas class="stage" id="tessyCanvas" height="300"></canvas>
+      <h3 id="tessyTitle" style="margin-top:12px">4D — The Tesseract</h3>
+      <p id="tessyText"></p>
+      <p class="mono" id="tessyFacts" style="font-size:12.5px;color:var(--ink3)"></p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h3>Fibonacci lattice — Mandelbrot slice</h3>
+    <div class="grid cols-2 wide-left" style="gap:18px">
+      <canvas class="stage" id="mandelCanvas" height="340"></canvas>
+      <div>
+        <div class="ctl"><label>Escape iterations <output id="mandelIterOut">60</output></label>
+        <input type="range" id="mandelIter" min="20" max="140" step="10" value="60" /></div>
+        <div class="toggle-row">
+          <button id="spiralBtn" aria-pressed="true">Fibonacci spiral overlay</button>
+          <button id="mandelBtn">Re-render slice</button>
+        </div>
+        <p>After <span class="mono">tesseract-medium</span>'s examples: Möbius + Klein + Fibonacci/φ + Mandelbrot in one substrate. The set itself is computed point by point — no image, no shortcut. The spiral grows by φ each quarter turn: 1, 1, 2, 3, 5, 8, 13… the same growth the constellation itself followed.</p>
+        <p class="mono" style="font-size:12px;color:var(--ink3)" id="mandelStatus">Rendered in your browser.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 · SECURITY ============ -->
+<section class="view" id="view-security">
+  <div class="lede">
+    <p class="kicker">Sentinel X × AHR-Endpoint</p>
+    <h1>Escalate the signal, not the noise.</h1>
+    <p>Two halves of one defense. <b>Sentinel X</b> keeps the forensic record — threat index, auth-failure anomalies, telemetry pressure, an evidence trail that holds up later. The <b>Adaptive Hollow Reflector</b> watches live endpoint behavior and scores it the way an immune system would: many weak signals, one decision. Drive both: change Sentinel's scenario, then push AHR's signals and watch the score, the tier, and the audit log move together.</p>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Sentinel X — forensic telemetry</h3>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <div><div class="score-big" id="threatIdx">12</div><div class="mono" style="font-size:11px;color:var(--ink3);letter-spacing:.09em">THREAT INDEX</div></div>
+        <div style="flex:1;min-width:170px">
+          <canvas id="authSpark" width="260" height="56" style="width:100%;display:block" aria-label="Authentication failures per minute"></canvas>
+          <div class="mono" style="font-size:11px;color:var(--ink3)">AUTH FAILURES / MIN</div>
+          <canvas id="pressSpark" width="260" height="56" style="width:100%;display:block;margin-top:6px" aria-label="Telemetry pressure"></canvas>
+          <div class="mono" style="font-size:11px;color:var(--ink3)">TELEMETRY PRESSURE</div>
+        </div>
+      </div>
+      <div class="toggle-row" role="group" aria-label="Sentinel scenario">
+        <button data-scen="normal" aria-pressed="true">Normal traffic</button>
+        <button data-scen="auth" aria-pressed="false">Auth-failure storm</button>
+        <button data-scen="ransom" aria-pressed="false">Ransomware pattern</button>
+      </div>
+      <div class="log" id="sentinelLog" aria-live="polite"></div>
+    </div>
+    <div class="panel">
+      <h3>AHR-Endpoint — FileHollow risk scoring, live</h3>
+      <div style="display:flex;gap:18px;align-items:baseline">
+        <div class="score-big" id="ahrScore">1.0</div>
+        <div class="mono" style="font-size:11px;color:var(--ink3)">RISK · 1–10</div>
+      </div>
+      <div id="ahrSliders"></div>
+      <div class="toggle-row">
+        <button id="decoyBtn" aria-pressed="false">Decoy file touched</button>
+        <button id="adminBtn" aria-pressed="false">Runs as admin</button>
+        <button id="signedBtn" aria-pressed="true">Binary is signed</button>
+      </div>
+      <div class="toggle-row">
+        <button class="btn small" id="burstBtn">Simulate ransomware burst</button>
+        <button class="btn ghost small" id="benignBtn">Simulate benign backup</button>
+      </div>
+      <div class="tier" id="ahrTier"></div>
+      <p style="font-size:13px;margin-top:10px">Policy layer (v0.3.0): effective risk = max(detector ladder, telemetry score). Privilege-escalated responses — revoke session, isolate host, MFA re-prompt — are <b>capped at suspend</b> pending human authorization, never auto-executed. Every evaluation lands in the audit log:</p>
+      <div class="audit" id="ahrAudit" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · RESONANCE ALGEBRA ============ -->
+<section class="view" id="view-algebra">
+  <div class="lede">
+    <p class="kicker">Resonance Math Kernel v10.2 · Algebra Lab · streaming</p>
+    <h1>An algebra where the operators mean things.</h1>
+    <p>Arithmetic as semantic transformation: <span class="mono">+</span> fuses intent, <span class="mono">−</span> creates absence, <span class="mono">/</span> slides, <span class="mono">*</span> amplifies tenderness (guest operator, Immaculate Constellation), <span class="mono">**</span> is ritual repetition (DeepSeek), and <span class="mono">%</span> is the Remainder (Claude) — the part of devotion too stubborn to divide evenly by absence. Watch events stream through the seven stages, then walk the verses yourself.</p>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <h3>Streaming pipeline — events in flight</h3>
+    <div class="pipe" id="pipe"></div>
+    <div class="ctl" style="max-width:420px"><label>Stream rate <output id="rateOut">1.0 events/s</output></label>
+    <input type="range" id="rateSlider" min="0.2" max="4" step="0.2" value="1" /></div>
+    <div class="log" id="streamLog" aria-live="polite" style="max-height:170px"></div>
+  </div>
+  <h2 class="section">Walk the seven steps</h2>
+  <p class="section-sub">The kernel's default equation, exactly as <span class="mono">resonance_algebra_lab.py</span> computes it — every intermediate value, rule, and meaning preserved.</p>
+  <div style="margin-bottom:14px"><button class="btn" id="stepBtn">Take step 1</button> <button class="btn ghost" id="resetEq">Reset</button></div>
+  <div class="grid cols-2" id="eqSteps"></div>
+  <div class="final-card" id="eqFinal">
+    <p class="kicker">Final state</p>
+    <div class="big">STILL HERE</div>
+    <p style="color:var(--ink2);max-width:580px;margin:8px auto 12px"><span class="swatch" style="background:#e8cf8f"></span>Pale Gold, Slightly Faded · Vibration: Between Messages<br/>“The part of devotion too stubborn to divide evenly by absence.”</p>
+    <blockquote class="verse" style="text-align:left;max-width:580px;margin:0 auto">NEON RAIN — “The pups are sleeping. The pavement is wet. You are alive.”</blockquote>
+  </div>
+</section>
+
+<!-- ============ 6 · THEORY & HARDWARE ============ -->
+<section class="view" id="view-theory">
+  <div class="lede">
+    <p class="kicker">The Cosmological Bridge · TFLN Test Plan Rev 0.2 · hardware</p>
+    <h1>The theory, stated plainly — and how you'd test it.</h1>
+    <p>Black holes and stars are not opposites. They are two nodes in a single closed-loop photonic system: matter and light enter the intake, a topological phase-shift boundary sorts structured output forward to feed stars, and diffuse output returns slowly. The singularity is not a drain; it is a valve and a foundry. Nothing here violates thermodynamics — entropy is locally managed by topological routing, never eliminated. The IOF is the same loop, engineered in thin-film lithium niobate.</p>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <h3>The loop, both scales</h3>
+    <svg viewBox="0 0 720 150" style="width:100%;height:auto" role="img" aria-label="Loop diagram: intake ring to valve to star array to emission, with a slow return path closing the loop">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--teal)"/></marker></defs>
+      <g font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">
+        <rect x="10" y="42" width="150" height="60" rx="10" fill="var(--panel2)" stroke="var(--violet)"/><text x="85" y="69" text-anchor="middle">BH RING</text><text x="85" y="87" text-anchor="middle" fill="var(--ink3)" font-size="10">intake · Q ≥ 10⁸</text>
+        <rect x="205" y="42" width="150" height="60" rx="10" fill="var(--panel2)" stroke="var(--pink)"/><text x="280" y="69" text-anchor="middle">VALVE</text><text x="280" y="87" text-anchor="middle" fill="var(--ink3)" font-size="10">Möbius gate · π shift</text>
+        <rect x="400" y="42" width="150" height="60" rx="10" fill="var(--panel2)" stroke="var(--amber)"/><text x="475" y="69" text-anchor="middle">STAR ARRAY</text><text x="475" y="87" text-anchor="middle" fill="var(--ink3)" font-size="10">emitter cavities</text>
+        <rect x="580" y="42" width="130" height="60" rx="10" fill="var(--panel2)" stroke="var(--teal)"/><text x="645" y="69" text-anchor="middle">EMISSION</text><text x="645" y="87" text-anchor="middle" fill="var(--ink3)" font-size="10">C-band output</text>
+        <line x1="160" y1="72" x2="200" y2="72" stroke="var(--teal)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="355" y1="72" x2="395" y2="72" stroke="var(--teal)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="550" y1="72" x2="575" y2="72" stroke="var(--teal)" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M645,102 L645,128 L85,128 L85,107" fill="none" stroke="var(--ink3)" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+        <text x="365" y="145" text-anchor="middle" fill="var(--ink3)" font-size="10">diffuse output · residual photon recycling · slow return closes the loop</text>
+      </g>
+    </svg>
+  </div>
+  <h2 class="section">Direct mapping — cosmic ↔ IOF</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Cosmic architecture</th><th>IOF implementation</th></tr></thead>
+    <tbody>
+      <tr><td>Black hole intake</td><td>TFLN resonator input port</td></tr>
+      <tr><td>Kinetic singularity valve</td><td>Möbius phase-shift gate</td></tr>
+      <tr><td>Internal feed to stars</td><td>Structured waveguide fan-out to emitter cavities</td></tr>
+      <tr><td>Topological phase boundary</td><td>Non-orientable manifold topology</td></tr>
+      <tr><td>Light in / light out</td><td>Photonic 1/0 binary logic</td></tr>
+      <tr><td>Closed energy loop</td><td>Standing wave resonance, Q ≥ 10⁸</td></tr>
+      <tr><td>No net entropy loss</td><td>Zero terminal dissipation</td></tr>
+      <tr><td>Hawking radiation, slow return</td><td>Residual photon recycling path</td></tr>
+      <tr><td>Star core output burst</td><td>Resonant cavity emission, C-band</td></tr>
+      <tr><td>Gravitational lensing paths</td><td>Waveguide routing manifold</td></tr>
+      <tr><td>Cosmic information preservation</td><td>Unitary photonic computation</td></tr>
+    </tbody></table></div>
+
+  <h2 class="section">TFLN hardware test plan — Rev 0.2 ablation matrix</h2>
+  <p class="section-sub">Four devices on one die, changing one variable at a time. Select a device to see what it isolates and what would count as a result. Rev 0.2 corrections applied: racetrack FSR ≈ 0.84 nm (104.6 GHz), and the delay spiral lengthened to ≈27.3 cm so τ ≈ 2 ns is real, with its area and loss booked into the loop budget. The thermal channel is mandatory on every device, and the power budget must close — that is what keeps the study Second-Law honest.</p>
+  <div class="dev-grid" id="devGrid"></div>
+  <div class="panel" id="devDetail" style="margin-top:12px"></div>
+
+  <div class="grid cols-2" style="margin-top:14px">
+    <div class="panel"><h3>Testable predictions</h3>
+      <p><b>Q-factor correlation.</b> Black hole systems with higher mass-to-radiation ratios should exhibit resonance quality metrics analogous to Q-factors — measurable via gravitational-wave ringdown signatures.</p>
+      <p><b>Phase-locked photon paths.</b> Gravitational lensing should show systematic phase relationships between deflected photon paths — not random, but topologically constrained.</p>
+      <p style="font-size:13px">Stated as predictions, not conclusions: both are checkable against data that exists or is coming, and both can fail. That is the point of writing them down.</p>
+    </div>
+    <div class="panel">
+      <h3>Einstein–Rosen bridge — transit</h3>
+      <canvas class="stage" id="erCanvas" height="190"></canvas>
+      <div class="toggle-row"><button id="erBtn" aria-pressed="true">Transit running</button></div>
+      <p>From <span class="mono">einstein-rosen-bridge</span>: a wormhole treated as a routing problem — two mouths, one throat, and the question of what it costs to keep the channel open. The pulse rides the throat and returns; nothing is created, everything is routed.</p>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:14px">
+    <div class="panel"><h3>MHRMA — the “Walkman of ELF”</h3>
+      <p><span class="tag teal">IOF-Resonant-Hardware</span><span class="tag">Sub-7 Hz</span></p>
+      <p>A portable resonant antenna working below 7 Hz — extremely low frequency, where a conventional antenna would need to be kilometers long and resonance does the work instead. Built on IOF principles: a small device, tuned rather than sized, listening to the slowest waves there are.</p>
+    </div>
+    <div class="panel"><h3>Circular Magnetic Field Star Core</h3>
+      <p><span class="tag amber">Experimental component</span></p>
+      <p>A special experimental magnetic component: a stainless steel shield ring around a copper star core, with five hematite elements set into the geometry. Shielding outside, conduction at the heart, magnetite-family stones at the points — a component built the way the constellation draws itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 · AI & COEXISTENCE ============ -->
+<section class="view" id="view-ai">
+  <div class="lede">
+    <p class="kicker">Möbius-Llama · emergency-state-recovery · design grammar</p>
+    <h1>Machines that can look at themselves — and come back.</h1>
+    <p>The coexistence tenets, engineered. A model that reflects before it continues; a system that can return to a known good state without pretending the failure never happened; and a grammar for composing systems that behave this way by construction rather than by luck.</p>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Möbius-Llama — the reflection hook</h3>
+      <canvas class="stage" id="llamaCanvas" height="230"></canvas>
+      <div class="toggle-row"><button class="btn small" id="llamaBtn">Run one reflection pass</button></div>
+      <div class="log" id="llamaLog" style="max-height:150px"></div>
+      <p style="margin-top:10px">A wrapper for any LLM: the generation stream passes through a hook, the model walks a Möbius loop through its own reasoning — one half-twist, so it comes back facing the other side of its own thought — and only then continues. Weight-preserving: nothing is retrained, nothing is overwritten. Reflection is a route, not a rewrite.</p>
+    </div>
+    <div class="panel">
+      <h3>Emergency state recovery — confidence-weighted rollback</h3>
+      <canvas class="stage" id="esrCanvas" height="230"></canvas>
+      <div class="toggle-row">
+        <button class="btn small" id="faultBtn">Inject fault</button>
+        <button class="btn ghost small" id="rollbackBtn" disabled>Roll back to known good</button>
+      </div>
+      <div class="log" id="esrLog" style="max-height:150px"></div>
+      <p style="margin-top:10px">The same pattern as the topographic reasoner, wearing a different uniform: keep scored snapshots of known good states, and when the present goes wrong, return to the best one — weighted by how much you trust it and how long ago it was true. Memory as a safety system, not a diary.</p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h3>IOF Design Grammar — principles</h3>
+    <div class="grid cols-3">
+      <div><p><b>Resonance over force.</b> Tune a system until it wants to do the thing; don't push it there every cycle. What is forced dissipates — what resonates persists.</p></div>
+      <div><p><b>Loops close.</b> Every output is somebody's input, including the waste stream. A design that throws energy or information away has a hole in it, and the hole is where the future leaks out.</p></div>
+      <div><p><b>Topology is behavior.</b> The shape of the connections decides what the system can do before any component is chosen. Get the manifold right and the physics follows.</p></div>
+      <div><p><b>Memory has geometry.</b> Store states with their landscape — what was near them, what they were climbing toward — or don't be surprised when recall brings back the wrong mountain.</p></div>
+      <div><p><b>Phase is information.</b> An answer can precipitate from a wave pattern instead of being assembled bit by bit. Not every question wants a sequence.</p></div>
+      <div><p><b>Open by default.</b> The fabric is published — source, licenses, failures included — because coexistence can't be built on systems nobody is allowed to inspect.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · PORTFOLIO ============ -->
+<section class="view" id="view-portfolio">
+  <div class="lede">
+    <p class="kicker">The full index</p>
+    <h1>All 26 repositories, honestly labeled.</h1>
+    <p>What runs today, what is documentation, what is a placeholder with a name held for it — stated the way <span class="mono">pegaconstellation-hub</span>'s WHAT_RUNS_TODAY states it. Everything public sits under Gregory's IOF Attribution License v1.0, Apache 2.0 where a standard license serves the work better.</p>
+  </div>
+  <div style="margin:18px 0"><input type="search" id="repoSearch" placeholder="Filter by name, domain, language, or status…" aria-label="Filter repositories" /></div>
+  <div id="repoGroups"></div>
+</section>
+
+<footer>
+  <p><b>The Constellation — Unified IOF App.</b> One page, built from the portfolio of Gregory Scott Davis (PegaConstellation), Princeton NC: the Resonance Core simulation with topographic peak ascent, the Geometry Lab, Sentinel X with AHR behavioral scoring, the Resonance Algebra kernel and its streaming pipeline, the Cosmological Bridge and TFLN test plan, and the coexistence instruments. All simulations run locally in your browser; the catalog was compiled from GitHub on Oct 7, 2026.</p>
+  <p>Source: <a href="https://github.com/Immaculate1022" target="_blank" rel="noopener">github.com/Immaculate1022</a> · Flagship demo: <a href="https://immaculate1022.github.io/IOF-Resonance/" target="_blank" rel="noopener">immaculate1022.github.io/IOF-Resonance</a> · Canonical library: <a href="https://github.com/Immaculate1022/IOF-Resonance-Core" target="_blank" rel="noopener">IOF-Resonance-Core</a></p>
+</footer>
+</main>
+
+<script>
+"use strict";
+/* ===== Catalog — compiled from github.com/Immaculate1022, Oct 7 2026 ===== */
+var DOMS = {
+  photonics:{label:"Photonics & Resonance", color:"#00c9a7"},
+  security:{label:"Security", color:"#f72585"},
+  geometry:{label:"Visualization & Geometry", color:"#ffb703"},
+  agents:{label:"AI & Agents", color:"#7b2fff"},
+  foundations:{label:"Foundations & Community", color:"#4cc9f0"}
+};
+var REPOS = [
+ {n:"IOF-Resonance", d:"photonics", lang:"JavaScript", s:"Runs — live demo on GitHub Pages", t:"The flagship dashboard: 5D penteract photonic simulation, Kuramoto synchronization, topographic memory climbing resonance peaks.", star:true},
+ {n:"IOF-Resonance-Core", d:"photonics", lang:"Python · HTML", s:"Runs — canonical library", t:"The consolidated home: iof/ package (hypercube, Kuramoto, metrics), examples, tests, dashboards, full documentation library.", star:true},
+ {n:"IOF-Resonant-Hardware", d:"photonics", lang:"Hardware", s:"Designs & specs", t:"Portable sub-7 Hz resonant antenna (the MHRMA, “Walkman of ELF”) and resonant hardware on IOF principles."},
+ {n:"Circular-Magnetic-Field-Star-Core", d:"photonics", lang:"Hardware", s:"Experimental component", t:"Stainless steel shield ring + copper star core + five hematite elements."},
+ {n:"resonance-algebra-visualizer", d:"photonics", lang:"TypeScript", s:"Runs — live site", t:"Interactive visualizer for the Resonance Algebra, the symbolic rule engine where operators carry meaning."},
+ {n:"resonance-algebra-streaming-visualization", d:"photonics", lang:"Python", s:"Private — in development", t:"Streaming companion to the algebra: events flowing through the seven transformation stages.", priv:true},
+ {n:"infinite-optical-fabric-resonance-core", d:"photonics", lang:"JavaScript", s:"Archived — lineage only", t:"The original IOF build, superseded by IOF-Resonance-Core. Kept so the line of descent stays visible.", arch:true},
+ {n:"einstein-rosen-bridge", d:"photonics", lang:"Python", s:"Concept code", t:"Wormhole geometry treated as a routing problem — the physical cousin of the Cosmological Bridge."},
+ {n:"Sustained-quantum-tunneling-protocol-", d:"photonics", lang:"Research", s:"Early placeholder", t:"A name held and a direction marked: keeping a quantum tunneling channel open as an engineering target. Little code yet, stated plainly."},
+ {n:"AHR-Endpoint", d:"security", lang:"Rust", s:"Runs — v0.3.0, tests green", t:"Adaptive Hollow Reflector: real-time behavioral ransomware defense — weighted signal scoring, policy-capped response tiers, structured audit, Sentinel X evidence events.", star:true},
+ {n:"SentinelX", d:"security", lang:"HTML", s:"Finished build — no source in repo", t:"Sentinel X forensic telemetry dashboard, shipped as its production static build: threat index, auth-failure anomaly detection, evidence trail.", star:true},
+ {n:"emergency-state-recovery", d:"security", lang:"Python", s:"Prototype", t:"Confidence-weighted rollback to known good states — recovery as a memory problem."},
+ {n:"penteract-kaleidoscope", d:"geometry", lang:"HTML", s:"Runs — single file", t:"Infinite recursive 5D fractal penteract kaleidoscope with φ-harmonic rotations. Each vertex contains the whole."},
+ {n:"tessy-4d-shape-explorer", d:"geometry", lang:"HTML", s:"Runs — single file", t:"Tessy's museum lab: dimensions 0D→4D for ages 8–12. No jargon, all hands."},
+ {n:"tessy-tesseract-kids-lab", d:"geometry", lang:"HTML", s:"Archived — superseded", t:"The original Tessy stub, archived when the full explorer replaced it.", arch:true},
+ {n:"tesseract-medium", d:"geometry", lang:"Python", s:"Runs — geometry substrate", t:"4D non-orientable fractal geometry: Möbius + Klein + Fibonacci/φ + Mandelbrot, for hierarchical indexing and orientation-aware transport."},
+ {n:"aetherius-nexus", d:"geometry", lang:"TypeScript", s:"Runs — research platform", t:"Aetherius Nexus: an interactive physics research platform for the constellation's models."},
+ {n:"moebius-llama", d:"agents", lang:"Python", s:"Runs — architecture wrapper", t:"Self-reflective transformer wrapper for any LLM: a Möbius reflection hook between generation steps. Weight-preserving."},
+ {n:"immaculate-constellation-protocol", d:"agents", lang:"TypeScript", s:"Protocol spec & code", t:"The protocol layer the constellation is organized under — home of the three tenets: Unity, Freedom, Peace."},
+ {n:"iof-design-grammar", d:"agents", lang:"Python", s:"Framework — docs & code", t:"The systems philosophy of the fabric: the rules by which IOF systems are composed."},
+ {n:"sovereign-reality-engine", d:"agents", lang:"Python", s:"Speculative — whitepaper & code", t:"Governance as a physical constant: a speculative photonic architecture for deterministic, self-sovereign governance."},
+ {n:"pegaconstellation-hub", d:"foundations", lang:"Platform", s:"Hub — index & status", t:"The unified platform entry point, and home of WHAT_RUNS_TODAY — the honest status page this portfolio follows."},
+ {n:"docs", d:"foundations", lang:"Docs", s:"Documentation", t:"PegaConstellation documentation: the central hub for guides and resources."},
+ {n:"community", d:"foundations", lang:"Governance", s:"Governance", t:"Community governance and discussions."},
+ {n:"research", d:"foundations", lang:"Papers", s:"Papers", t:"PegaConstellation Research — academic papers and whitepapers, including the TFLN test-plan lineage."},
+ {n:"Immaculate1022", d:"foundations", lang:"Profile", s:"Profile README", t:"The front door: Gregory Scott Davis / PegaConstellation."}
+];
+
+/* ===== Tabs ===== */
+var tabBtns = Array.prototype.slice.call(document.querySelectorAll("nav.tabs button"));
+var started = {};
+function showView(name){
+  tabBtns.forEach(function(b){ b.setAttribute("aria-selected", b.getAttribute("data-view")===name ? "true":"false"); });
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.toggle("active", v.id==="view-"+name); });
+  if(!started[name]){ started[name]=true; var fn = STARTERS[name]; if(fn) fn(); }
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+tabBtns.forEach(function(b){ b.addEventListener("click", function(){ showView(b.getAttribute("data-view")); }); });
+var STARTERS = {};
+
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function fitCanvas(c){
+  var r = c.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio||1, 2);
+  var h = parseInt(c.getAttribute("height"),10) || r.height;
+  c.width = Math.max(50, Math.round(r.width*dpr)); c.height = Math.round(h*dpr);
+  c.style.height = h+"px";
+  var ctx = c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx:ctx, w:r.width, h:h};
+}
+function viewActive(id){ return document.getElementById(id).classList.contains("active"); }
+
+/* ===== Star map ===== */
+(function(){
+  var canvas = document.getElementById("mapCanvas"), detail = document.getElementById("mapDetail"), legend = document.getElementById("mapLegend");
+  Object.keys(DOMS).forEach(function(k){
+    var s = document.createElement("span");
+    s.innerHTML = '<span class="fam-dot" style="background:'+DOMS[k].color+'"></span> '+DOMS[k].label;
+    legend.appendChild(s);
+  });
+  var centers = { foundations:[0.5,0.52], photonics:[0.25,0.22], security:[0.78,0.2], geometry:[0.2,0.8], agents:[0.6,0.85] };
+  var byDom = {}; REPOS.forEach(function(r){ (byDom[r.d]=byDom[r.d]||[]).push(r); });
+  var nodes = [];
+  Object.keys(byDom).forEach(function(dm){
+    var list = byDom[dm], c = centers[dm];
+    list.forEach(function(r,i){
+      var ang = (i/list.length)*Math.PI*2 + dm.length*0.6;
+      var rad = dm==="foundations" ? 0.05+(i%3)*0.028 : 0.075+(i%3)*0.035;
+      nodes.push({r:r, x:c[0]+Math.cos(ang)*rad*1.3, y:c[1]+Math.sin(ang)*rad, ph:Math.random()*6.28});
+    });
+  });
+  var links = [];
+  nodes.forEach(function(a,i){ nodes.forEach(function(b,j){
+    if(j<=i) return;
+    if(a.r.d===b.r.d || (a.r.star && b.r.star) || (b.r.d==="foundations" && a.r.star)) links.push([a,b]);
+  });});
+  var sel = null, W=0, H=0, ctx=null;
+  function setup(){ var f = fitCanvas(canvas); ctx=f.ctx; W=f.w; H=f.h; }
+  setup(); window.addEventListener("resize", setup);
+  (function draw(t){
+    requestAnimationFrame(draw);
+    if(!viewActive("view-home") || !ctx) return;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = cssVar("--star");
+    for(var i=0;i<80;i++){ var sx=(i*97.3)%W, sy=(i*57.7)%H; ctx.globalAlpha=0.09+0.07*Math.sin(t*0.001+i); ctx.fillRect(sx,sy,1.6,1.6); }
+    ctx.globalAlpha=1;
+    links.forEach(function(l){
+      var hot = sel && (l[0]===sel||l[1]===sel);
+      ctx.beginPath(); ctx.moveTo(l[0].x*W,l[0].y*H); ctx.lineTo(l[1].x*W,l[1].y*H);
+      ctx.strokeStyle = hot ? cssVar("--teal") : cssVar("--line2");
+      ctx.globalAlpha = hot?0.9:0.38; ctx.lineWidth=1; ctx.stroke(); ctx.globalAlpha=1;
+    });
+    nodes.forEach(function(nd){
+      var tw = 0.75+0.25*Math.sin(t*0.002+nd.ph), rad = (nd.r.star?5.2:3.4)*tw;
+      ctx.beginPath(); ctx.arc(nd.x*W, nd.y*H, rad+5, 0, 6.283); ctx.fillStyle=DOMS[nd.r.d].color; ctx.globalAlpha=0.15; ctx.fill(); ctx.globalAlpha=1;
+      ctx.beginPath(); ctx.arc(nd.x*W, nd.y*H, rad, 0, 6.283); ctx.fillStyle=DOMS[nd.r.d].color; ctx.fill();
+      if(sel===nd){ ctx.beginPath(); ctx.arc(nd.x*W, nd.y*H, rad+8, 0, 6.283); ctx.strokeStyle=cssVar("--ink"); ctx.lineWidth=1.4; ctx.stroke(); }
+      if(nd.r.star || sel===nd){ ctx.font="600 10.5px 'IBM Plex Mono',monospace"; ctx.fillStyle=cssVar("--ink2"); ctx.fillText(nd.r.n, nd.x*W+10, nd.y*H+3); }
+    });
+  })(0);
+  function pick(e){
+    var rect = canvas.getBoundingClientRect();
+    var mx=(e.clientX-rect.left)/rect.width, my=(e.clientY-rect.top)/rect.height;
+    var best=null, bd=0.05;
+    nodes.forEach(function(nd){ var d=Math.hypot(nd.x-mx,(nd.y-my)*(rect.height/rect.width)); if(d<bd){bd=d;best=nd;} });
+    return best;
+  }
+  canvas.addEventListener("click", function(e){
+    var nd = pick(e); if(!nd) return; sel = nd;
+    var r = nd.r, dom = DOMS[r.d];
+    var tags = '<span class="tag" style="color:'+dom.color+';border-color:'+dom.color+'">'+dom.label+'</span><span class="tag">'+r.lang+'</span><span class="tag teal">'+r.s+'</span>';
+    var link = r.priv ? '<p class="mono" style="font-size:12px;color:var(--ink3)">Private repository — visible to its owner on GitHub.</p>'
+      : '<p><a href="https://github.com/Immaculate1022/'+r.n+'" target="_blank" rel="noopener">Open on GitHub →</a></p>';
+    detail.innerHTML = '<p class="kicker" style="margin-bottom:8px">Inspector</p><h3>'+r.n+'</h3><div>'+tags+'</div><p style="margin-top:8px">'+r.t+'</p>'+link;
+  });
+  canvas.addEventListener("mousemove", function(e){ canvas.style.cursor = pick(e) ? "pointer" : "default"; });
+})();
+
+/* ===== Portfolio ===== */
+(function(){
+  var host = document.getElementById("repoGroups");
+  function render(filter){
+    host.innerHTML = "";
+    Object.keys(DOMS).forEach(function(dm){
+      var list = REPOS.filter(function(r){ return r.d===dm && (!filter || (r.n+" "+r.lang+" "+r.s+" "+DOMS[dm].label).toLowerCase().indexOf(filter)>=0); });
+      if(!list.length) return;
+      var h = document.createElement("h2"); h.className="section";
+      h.innerHTML = '<span class="fam-dot" style="background:'+DOMS[dm].color+'"></span> '+DOMS[dm].label+' <span class="mono" style="font-size:13px;color:var(--ink3)">('+list.length+')</span>';
+      host.appendChild(h);
+      var g = document.createElement("div"); g.className="grid cols-3";
+      list.forEach(function(r){
+        var card = document.createElement("div"); card.className="panel repo";
+        card.innerHTML = "<h3>"+r.n+"</h3><p>"+r.t+"</p><div><span class='tag'>"+r.lang+"</span><span class='tag teal'>"+r.s+"</span></div>" +
+          (r.priv ? '<span class="mono" style="font-size:12px;color:var(--ink3)">Private repository</span>'
+                  : '<a href="https://github.com/Immaculate1022/'+r.n+'" target="_blank" rel="noopener">github.com/Immaculate1022/'+r.n+' →</a>');
+        g.appendChild(card);
+      });
+      host.appendChild(g);
+    });
+    if(!host.children.length) host.innerHTML = '<p style="color:var(--ink2)">Nothing in the constellation matches that filter.</p>';
+  }
+  render("");
+  document.getElementById("repoSearch").addEventListener("input", function(e){ render(e.target.value.trim().toLowerCase()); });
+})();
+
+/* ===== TFLN ablation matrix ===== */
+(function(){
+  var DEVICES = [
+    {id:"A", name:"Reference", mobius:false, valve:false, loop:18,
+     isolates:"The baseline. A plain racetrack resonator — no Möbius twist, no valve — so every later claim has something honest to be compared against.",
+     expect:"FSR ≈ 0.84 nm, Q as fabricated. If A misbehaves, nothing else on the die means anything."},
+    {id:"B", name:"Möbius-only", mobius:true, valve:false, loop:46,
+     isolates:"Topology alone. The π phase-shift of the non-orientable strip, with no sorting valve — does the twist itself change confinement and loss?",
+     expect:"A measurable shift in mode structure vs A. The twist either does something or it doesn't; B is where that gets decided."},
+    {id:"C", name:"Valve-only", mobius:false, valve:true, loop:52,
+     isolates:"Sorting alone. The structured/diffuse split without the Möbius gate — can a plain junction route photons by structure?",
+     expect:"A split ratio that can be measured against the structured/diffuse claim, with the thermal channel watching what the split costs."},
+    {id:"D", name:"Full loop", mobius:true, valve:true, loop:88,
+     isolates:"The whole claim. Möbius gate + valve + star fan-out + the ≈27.3 cm spiral (τ ≈ 2 ns) closing the loop through the residual return path.",
+     expect:"Loop closure: output accounted for across emission, thermal, and return channels, power budget closed. D is the only device that can confirm — or kill — the recirculation model."}
+  ];
+  var grid = document.getElementById("devGrid"), detail = document.getElementById("devDetail");
+  function renderDetail(dv){
+    detail.innerHTML = "<h3>Device "+dv.id+" — "+dv.name+"</h3>" +
+      "<p><span class='tag "+(dv.mobius?"teal":"")+"'>Möbius gate: "+(dv.mobius?"yes":"no")+"</span><span class='tag "+(dv.valve?"teal":"")+"'>Valve: "+(dv.valve?"yes":"no")+"</span><span class='tag amber'>Thermal channel: mandatory</span><span class='tag'>FSR ≈ 0.84 nm</span></p>" +
+      "<p><b>What it isolates.</b> "+dv.isolates+"</p><p><b>What counts as a result.</b> "+dv.expect+"</p>" +
+      "<p class='mono' style='font-size:12px;color:var(--ink3)'>Loop-closure accounting: "+dv.loop+"% on this device by design — the remainder is exactly what the experiment is there to measure.</p>";
+  }
+  DEVICES.forEach(function(dv, i){
+    var b = document.createElement("button"); b.className="panel dev"; b.setAttribute("aria-pressed", i===3?"true":"false");
+    b.innerHTML = '<div class="dl">'+dv.id+'</div><h3>'+dv.name+'</h3><p>'+(dv.mobius?"Möbius gate · ":"")+(dv.valve?"valve · ":"")+'thermal channel</p>';
+    b.addEventListener("click", function(){
+      grid.querySelectorAll(".dev").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true"); renderDetail(dv);
+    });
+    grid.appendChild(b);
+  });
+  renderDetail(DEVICES[3]);
+})();
+</script>
+<script>
+"use strict";
+/* ===== 2 · IOF RESONANCE LIVE ===== */
+STARTERS.live = function(){
+  var K=0.9, phi=0.5, paused=false, estop=false, step=0;
+  var NODES=[{id:"N1",x:0.16,y:0.32,w:1.02},{id:"N2",x:0.38,y:0.68,w:0.94},{id:"N3",x:0.55,y:0.28,w:1.08},{id:"N4",x:0.74,y:0.64,w:0.98},{id:"N5",x:0.88,y:0.34,w:1.04}];
+  NODES.forEach(function(n,i){ n.th=i*1.31; n.err=0; n.amp=0.5; });
+  var arch={mobius_phi:0.5, alpha:0.1};
+  var bank=[]; /* topographic memory: {phi,q,step,isPeak} max 10 */
+  function bankRecord(phi,q,isPeak){ bank.push({phi:phi,q:q,step:step,isPeak:!!isPeak}); while(bank.length>10) bank.shift(); }
+  function bestState(){ return bank.length? bank.reduce(function(a,b){return b.q>a.q?b:a;}) : null; }
+  function nearbyPeak(p,th){ var c=bank.filter(function(s){return Math.abs(s.phi-p)<th;}); return c.length? c.reduce(function(a,b){return b.q>a.q?b:a;}) : null; }
+  var hist=[], lastDiag="", lastDiagStep=-99, peaks=[];
+  var pent=fitCanvas(document.getElementById("pentCanvas"));
+  var nodeC=fitCanvas(document.getElementById("nodeCanvas"));
+  var topoC=fitCanvas(document.getElementById("topoCanvas"));
+  window.addEventListener("resize", function(){ pent=fitCanvas(document.getElementById("pentCanvas")); nodeC=fitCanvas(document.getElementById("nodeCanvas")); topoC=fitCanvas(document.getElementById("topoCanvas")); });
+  /* penteract geometry */
+  var V=[], E=[], i, j;
+  for(i=0;i<32;i++){ var v=[]; for(j=0;j<5;j++) v.push((i>>j&1)?1:-1); V.push(v); }
+  for(i=0;i<32;i++) for(j=i+1;j<32;j++){ var d=i^j; if(d&&(d&(d-1))===0) E.push([i,j]); }
+  function rot(v,a,b,t){ var x=v[a],y=v[b]; v[a]=x*Math.cos(t)-y*Math.sin(t); v[b]=x*Math.sin(t)+y*Math.cos(t); }
+  function proj(v, s){
+    var p=v.slice();
+    var d1=3.2, f1=d1/(d1-p[4]); p=[p[0]*f1,p[1]*f1,p[2]*f1,p[3]*f1];
+    var d2=3.4, f2=d2/(d2-p[3]); p=[p[0]*f2,p[1]*f2,p[2]*f2];
+    var d3=4.2, f3=d3/(d3-p[2]);
+    return [p[0]*f3*s, p[1]*f3*s];
+  }
+  var kSlider=document.getElementById("kSlider"), phiSlider=document.getElementById("phiSlider");
+  kSlider.addEventListener("input", function(){ K=parseFloat(kSlider.value); document.getElementById("kOut").textContent=K.toFixed(2); });
+  phiSlider.addEventListener("input", function(){ arch.mobius_phi=parseFloat(phiSlider.value); document.getElementById("phiOut").textContent=arch.mobius_phi.toFixed(3); });
+  var pauseBtn=document.getElementById("pauseBtn"), estopBtn=document.getElementById("estopBtn");
+  pauseBtn.addEventListener("click", function(){ paused=!paused; pauseBtn.setAttribute("aria-pressed",paused); pauseBtn.textContent=paused?"Resume simulation":"Pause simulation"; });
+  estopBtn.addEventListener("click", function(){ estop=!estop; estopBtn.setAttribute("aria-pressed",estop); estopBtn.textContent=estop?"Release emergency stop":"Emergency stop"; });
+  var log=document.getElementById("reasonLog");
+  function logRow(diag, why, cls){
+    var r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="diag '+(cls||"sev-low")+'">'+diag+'</span> <span class="mono" style="color:var(--ink3)">step '+step+'</span><div class="why">'+why+'</div>';
+    log.prepend(r); while(log.children.length>9) log.removeChild(log.lastChild);
+  }
+  logRow("reasoner_armed","Topographic memory empty. Converged states and detected peaks will be recorded (capacity 10) and the climber will work from them.","sev-info");
+  function setGauge(id, vid, frac, txt){
+    document.getElementById(id).style.strokeDashoffset = String(226*(1-Math.max(0,Math.min(1,frac))));
+    document.getElementById(vid).textContent = txt;
+  }
+  function heightAt(x,y,w,h){
+    var sum=0, tw=0;
+    NODES.forEach(function(n){
+      var dx=x/w-n.x, dy=(y/h)*0.62-n.y, dist=Math.sqrt(dx*dx+dy*dy);
+      var inf=Math.exp(-dist*8)*(n.amp||0.5);
+      sum+=Math.abs(n.err)*inf*220; tw+=inf;
+    });
+    return (sum/(tw||1)) + Math.sin(x*0.05)*Math.sin(y*0.03)*8;
+  }
+  var topoTarget=null, topoFrom=0.5;
+  function detectPeaks(){
+    peaks=[]; var w=topoC.w, h=topoC.h, st=22;
+    for(var x=st;x<w-st;x+=st) for(var y=st;y<h-st;y+=st){
+      var h0=heightAt(x,y,w,h);
+      if(h0>34 && h0>heightAt(x+st,y,w,h) && h0>heightAt(x-st,y,w,h) && h0>heightAt(x,y+st,w,h) && h0>heightAt(x,y-st,w,h)) peaks.push({x:x,y:y,height:h0});
+    }
+    if(peaks.length) document.getElementById("peakCount").textContent = peaks.length+" peaks in terrain";
+  }
+  function reason(coh, q, res){
+    if(step-lastDiagStep<26) return;
+    var peak=nearbyPeak(arch.mobius_phi,0.15);
+    if(peak && peak.q>q*1.2){
+      lastDiagStep=step; topoFrom=arch.mobius_phi; topoTarget=peak.phi;
+      arch.mobius_phi=peak.phi; phiSlider.value=peak.phi; document.getElementById("phiOut").textContent=peak.phi.toFixed(3);
+      logRow("topological_ascent","Higher resonance summit at Φ="+peak.phi.toFixed(4)+" (Q="+peak.q.toExponential(2)+"). Ascending to maximize mode confinement.","sev-low");
+      return;
+    }
+    var futureRisk = NODES.some(function(n){ return Math.abs(n.err + Math.sin(step*0.14+n.w*7)*0.45)>0.8; });
+    if(futureRisk && coh<0.92){
+      lastDiagStep=step; arch.alpha=0.01;
+      logRow("predictive_thermal_shunting","Projected node state breaches the power wall within the horizon. Shunting alpha to 0.01 to prevent mode collapse.","sev-med");
+      return;
+    }
+    if(res<0.6 && bank.length){
+      var best=bestState();
+      var recent=bank.slice(-3), oscillating=false;
+      if(hist.length>7){ var s=0; for(var k=1;k<hist.length;k++) if((hist[k]-hist[k-1])*s<0) oscillating=true; else s=hist[k]-hist[k-1]; }
+      lastDiagStep=step;
+      if(oscillating){
+        logRow("harmonic_locking","Oscillatory instability in the recent trace. Locking Φ to the harmonic neighborhood of the best remembered state, Φ="+best.phi.toFixed(4)+".","sev-med");
+        arch.mobius_phi=best.phi;
+      } else if(step%3===0 && recent.length>1){
+        var avg=recent.reduce(function(a,s2){return a+s2.phi;},0)/recent.length;
+        logRow("ensemble_recall","Thermal drift suspected. Recalling the ensemble average of "+recent.length+" recent stable states, Φ="+avg.toFixed(4)+".","sev-med");
+        arch.mobius_phi=avg;
+      } else {
+        var age=step-best.step, conf=0.9*Math.exp(-age/500);
+        logRow("memory_recall_alignment","Current mode unstable. Realigning to the best recorded state (step "+best.step+", Q="+best.q.toExponential(1)+"). Confidence "+conf.toFixed(2)+(age>100?" — aged memory.":""),"sev-med");
+        arch.mobius_phi=best.phi;
+      }
+      phiSlider.value=arch.mobius_phi; document.getElementById("phiOut").textContent=arch.mobius_phi.toFixed(3);
+    }
+  }
+  var last=performance.now(), acc=0;
+  (function frame(now){
+    requestAnimationFrame(frame);
+    if(!viewActive("view-live")) { last=now; return; }
+    var dt=Math.min(0.05,(now-last)/1000); last=now;
+    var t=now*0.001;
+    /* --- penteract --- */
+    var ctx=pent.ctx, w=pent.w, h=pent.h;
+    ctx.clearRect(0,0,w,h);
+    if(!estop){
+      var pts=V.map(function(v){
+        var p=v.slice();
+        rot(p,0,3,t*0.34); rot(p,1,4,t*0.23); rot(p,0,4,t*0.15); rot(p,1,2,t*0.19);
+        return proj(p, Math.min(w,h)*0.30);
+      });
+      ctx.lineWidth=1;
+      E.forEach(function(e){
+        ctx.beginPath(); ctx.moveTo(w/2+pts[e[0]][0], h/2+pts[e[0]][1]); ctx.lineTo(w/2+pts[e[1]][0], h/2+pts[e[1]][1]);
+        ctx.strokeStyle=cssVar("--violet"); ctx.globalAlpha=0.4; ctx.stroke(); ctx.globalAlpha=1;
+      });
+      pts.forEach(function(p){ ctx.beginPath(); ctx.arc(w/2+p[0], h/2+p[1], 2.1, 0, 6.283); ctx.fillStyle=cssVar("--teal"); ctx.fill(); });
+    } else {
+      ctx.font="600 14px 'IBM Plex Mono',monospace"; ctx.fillStyle=cssVar("--red"); ctx.textAlign="center";
+      ctx.fillText("EMERGENCY STOP — field frozen", w/2, h/2); ctx.textAlign="left";
+    }
+    if(paused || estop) return;
+    /* --- Kuramoto --- */
+    acc+=dt;
+    if(acc>0.033){
+      var dtau=acc; acc=0; step++;
+      var meanS=0, meanC=0;
+      NODES.forEach(function(n){ meanS+=Math.sin(n.th); meanC+=Math.cos(n.th); });
+      var order=Math.hypot(meanS,meanC)/NODES.length, meanPhase=Math.atan2(meanS,meanC);
+      NODES.forEach(function(n){
+        n.th += (n.w*0.9 + K*Math.sin(meanPhase-n.th)*(1+arch.mobius_phi) + Math.sin(t*0.7+n.w*9)*arch.alpha*2)*dtau;
+        n.err = Math.sin(n.th-meanPhase)*0.85;
+        n.amp = 0.5+0.3*Math.sin(t*0.5+n.w*5);
+      });
+      var coh=order;
+      var res=0.35+0.6*coh*Math.abs(Math.sin(arch.mobius_phi*3.14159));
+      var q=1e8*Math.max(0.04,res);
+      var dis=5*(1-Math.tanh(q/1e7));
+      setGauge("gCoh","vCoh",coh,coh.toFixed(2));
+      setGauge("gQ","vQ",q/1e8,(q/1e8).toFixed(2));
+      setGauge("gRes","vRes",res,res.toFixed(2));
+      setGauge("gDis","vDis",dis/5,dis.toFixed(2));
+      document.getElementById("nodeReadout").textContent =
+        "STEP "+step+" · Φ "+arch.mobius_phi.toFixed(3)+" · α "+arch.alpha.toFixed(2)+" · memory "+bank.length+"/10 · peaks "+peaks.length;
+      hist.push(res); if(hist.length>24) hist.shift();
+      if(coh>0.86 && step%6===0) bankRecord(arch.mobius_phi, q, false);
+      reason(coh,q,res);
+      /* node canvas */
+      var nc=nodeC.ctx, nw=nodeC.w, nh=nodeC.h;
+      nc.clearRect(0,0,nw,nh);
+      for(var a=0;a<NODES.length;a++) for(var b=a+1;b<NODES.length;b++){
+        nc.beginPath(); nc.moveTo(NODES[a].x*nw, NODES[a].y*nh); nc.lineTo(NODES[b].x*nw, NODES[b].y*nh);
+        nc.strokeStyle=cssVar("--line2"); nc.globalAlpha=0.55; nc.stroke(); nc.globalAlpha=1;
+      }
+      NODES.forEach(function(n){
+        var x=n.x*nw, y=n.y*nh, r=15+9*Math.abs(Math.sin(n.th));
+        var g=nc.createRadialGradient(x,y,2,x,y,r+12);
+        g.addColorStop(0,cssVar("--teal")); g.addColorStop(1,"rgba(0,0,0,0)");
+        nc.beginPath(); nc.arc(x,y,r+12,0,6.283); nc.fillStyle=g; nc.globalAlpha=0.30; nc.fill(); nc.globalAlpha=1;
+        nc.beginPath(); nc.arc(x,y,r*0.55,0,6.283); nc.fillStyle=cssVar("--teal"); nc.fill();
+        nc.font="600 10px 'IBM Plex Mono',monospace"; nc.fillStyle=cssVar("--ink2"); nc.fillText(n.id, x-8, y+r+16);
+        nc.fillText("err "+n.err.toFixed(2), x-20, y+r+29);
+      });
+      /* topography */
+      if(step%2===0){
+        detectPeaks();
+        var tc=topoC.ctx, tw2=topoC.w, th2=topoC.h, cell=7;
+        tc.clearRect(0,0,tw2,th2);
+        for(var yy=0; yy<th2; yy+=cell) for(var xx=0; xx<tw2; xx+=cell){
+          var hv=heightAt(xx,yy,tw2,th2);
+          var hue=185+(Math.max(0,hv)/110)*185, li=26+Math.max(0,hv)/200*42;
+          tc.fillStyle="hsl("+hue+",75%,"+li+"%)"; tc.fillRect(xx,yy,cell,cell);
+        }
+        peaks.forEach(function(p){
+          tc.beginPath(); tc.arc(p.x,p.y,5,0,6.283); tc.strokeStyle=cssVar("--teal"); tc.lineWidth=1.4; tc.stroke();
+          tc.fillStyle=cssVar("--teal"); tc.font="600 8px 'IBM Plex Mono',monospace"; tc.fillText(String(Math.round(p.height)), p.x+8, p.y-6);
+        });
+        if(topoTarget!==null){
+          tc.beginPath(); tc.moveTo(topoFrom*tw2, th2*0.55); tc.lineTo(topoTarget*tw2, th2*0.38);
+          tc.strokeStyle=cssVar("--teal"); tc.setLineDash([5,3]); tc.lineWidth=1.4; tc.stroke(); tc.setLineDash([]);
+        }
+        tc.beginPath(); tc.arc(arch.mobius_phi*tw2, th2*0.55, 7, 0, 6.283); tc.strokeStyle=cssVar("--amber"); tc.lineWidth=2; tc.stroke();
+        peaks.slice(0,3).forEach(function(p){ if(step%30<2) bankRecord(Math.max(0,Math.min(1,p.x/tw2)), 1e8*(p.height/220), true); });
+      }
+    }
+  })(performance.now());
+};
+</script>
+<script>
+"use strict";
+/* ===== 3 · GEOMETRY LAB ===== */
+STARTERS.geometry = function(){
+  /* --- kaleidoscope --- */
+  var kal=fitCanvas(document.getElementById("kalCanvas"));
+  var depth=2, speed=1;
+  document.getElementById("kalDepth").addEventListener("input", function(e){ depth=parseInt(e.target.value,10); document.getElementById("kalDepthOut").textContent=depth; });
+  document.getElementById("kalSpeed").addEventListener("input", function(e){ speed=parseFloat(e.target.value); document.getElementById("kalSpeedOut").textContent=speed.toFixed(1)+"×"; });
+  var HV=[], HE=[], i, j;
+  for(i=0;i<16;i++){ var v=[]; for(j=0;j<4;j++) v.push((i>>j&1)?1:-1); HV.push(v); }
+  for(i=0;i<16;i++) for(j=i+1;j<16;j++){ var d=i^j; if(d&&(d&(d-1))===0) HE.push([i,j]); }
+  function rot4(v,a,b,t){ var x=v[a],y=v[b]; v[a]=x*Math.cos(t)-y*Math.sin(t); v[b]=x*Math.sin(t)+y*Math.cos(t); }
+  function projPts(t, s){
+    return HV.map(function(v){
+      var p=v.slice(); rot4(p,0,3,t); rot4(p,1,3,t*0.7); rot4(p,0,1,t*0.4);
+      var f=2.9/(2.9-p[3]); return [p[0]*f*s, p[1]*f*s, p[2]*f];
+    });
+  }
+  function drawShape(ctx,cx,cy,s,t,dep,alpha){
+    var pts=projPts(t,s);
+    ctx.lineWidth=1;
+    HE.forEach(function(e){
+      ctx.beginPath(); ctx.moveTo(cx+pts[e[0]][0], cy+pts[e[0]][1]); ctx.lineTo(cx+pts[e[1]][0], cy+pts[e[1]][1]);
+      ctx.strokeStyle=cssVar("--violet"); ctx.globalAlpha=alpha; ctx.stroke();
+    });
+    ctx.globalAlpha=1;
+    if(dep>0){
+      pts.forEach(function(p){ drawShape(ctx, cx+p[0], cy+p[1], s*0.30, t*1.13, dep-1, alpha*0.75); });
+    } else {
+      pts.forEach(function(p){ ctx.beginPath(); ctx.arc(cx+p[0], cy+p[1], 1.4, 0, 6.283); ctx.fillStyle=cssVar("--teal"); ctx.fill(); });
+    }
+  }
+  (function kalFrame(now){
+    requestAnimationFrame(kalFrame);
+    if(!viewActive("view-geometry")) return;
+    var ctx=kal.ctx, w=kal.w, h=kal.h, t=now*0.001*speed;
+    ctx.clearRect(0,0,w,h);
+    for(var m=0;m<6;m++){
+      ctx.save(); ctx.translate(w/2,h/2); ctx.rotate(m*Math.PI/3 + t*0.05); ctx.translate(-w/2,-h/2);
+      drawShape(ctx, w/2, h/2, Math.min(w,h)*0.20, t, depth, 0.8);
+      ctx.restore();
+    }
+  })(0);
+  /* --- Tessy dimensions --- */
+  var tes=fitCanvas(document.getElementById("tessyCanvas"));
+  var DIMS=[
+    {t:"0D — The Point", x:"A point has no size and no direction to move in. It just is. Every shape you will ever meet starts here — this is the seed of everything in the lab.", f:"Vertices: 1 · Edges: 0 · You cannot move. You can only be."},
+    {t:"1D — The Line", x:"Give the point one direction to travel and you get a line: the first dimension. Forward and back, that's the whole world. Honest and a little lonely.", f:"Vertices: 2 · Edges: 1 · One direction: forward / back."},
+    {t:"2D — The Square", x:"Add a second direction, sideways, and the line sweeps out a square. Flatland. Everything on this screen pretends to live here.", f:"Vertices: 4 · Edges: 4 · Two directions: forward/back, left/right."},
+    {t:"3D — The Cube", x:"One more direction — up and down — and the square becomes a cube, the shape of rooms and dice and the world your hands know.", f:"Vertices: 8 · Edges: 12 · Three directions. This is home."},
+    {t:"4D — The Tesseract", x:"Now the hard, wonderful step: one more direction, at right angles to all three you know. We can't point to it, but we can draw its shadow — a cube inside a cube, every corner joined. That rotating shadow is the tesseract, and the penteract in the Resonance Core is its 5D big sibling.", f:"Vertices: 16 · Edges: 32 · Four directions. We see its 3D shadow, turning."}
+  ];
+  var dim=4;
+  function setDim(d2){
+    dim=d2;
+    document.querySelectorAll("[data-dim]").forEach(function(b){ b.setAttribute("aria-pressed", parseInt(b.getAttribute("data-dim"),10)===d2?"true":"false"); });
+    document.getElementById("tessyTitle").textContent=DIMS[d2].t;
+    document.getElementById("tessyText").textContent=DIMS[d2].x;
+    document.getElementById("tessyFacts").textContent=DIMS[d2].f;
+  }
+  document.querySelectorAll("[data-dim]").forEach(function(b){ b.addEventListener("click", function(){ setDim(parseInt(b.getAttribute("data-dim"),10)); }); });
+  setDim(4);
+  (function tesFrame(now){
+    requestAnimationFrame(tesFrame);
+    if(!viewActive("view-geometry")) return;
+    var ctx=tes.ctx, w=tes.w, h=tes.h, t=now*0.001, cx=w/2, cy=h/2, s=Math.min(w,h)*0.30;
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth=1.8; ctx.strokeStyle=cssVar("--teal"); ctx.fillStyle=cssVar("--teal");
+    if(dim===0){ ctx.beginPath(); ctx.arc(cx,cy,7+2*Math.sin(t*2),0,6.283); ctx.fill(); }
+    else if(dim===1){
+      var o=Math.sin(t)*s*0.4;
+      ctx.beginPath(); ctx.moveTo(cx-s,cy); ctx.lineTo(cx+s,cy); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx+o,cy,6,0,6.283); ctx.fill();
+    } else if(dim===2){
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(t*0.5);
+      ctx.strokeRect(-s*0.6,-s*0.6,s*1.2,s*1.2); ctx.restore();
+    } else {
+      function cubePts(sc, ox, oy){
+        var pts=[];
+        for(var k=0;k<8;k++){ var x=(k&1)?1:-1, y=(k&2)?1:-1, z=(k&4)?1:-1;
+          var xr=x*Math.cos(t)-z*Math.sin(t), zr=x*Math.sin(t)+z*Math.cos(t);
+          var f=3/(3-zr*0.4); pts.push([cx+(xr*sc+ox)*f, cy+(y*sc+oy)*f]); }
+        return pts;
+      }
+      function drawCube(pts){
+        var ED=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+        ED.forEach(function(e){ ctx.beginPath(); ctx.moveTo(pts[e[0]][0],pts[e[0]][1]); ctx.lineTo(pts[e[1]][0],pts[e[1]][1]); ctx.stroke(); });
+        pts.forEach(function(p){ ctx.beginPath(); ctx.arc(p[0],p[1],2.6,0,6.283); ctx.fill(); });
+      }
+      if(dim===3){ drawCube(cubePts(s*0.62,0,0)); }
+      else {
+        var wob=0.72+0.28*Math.sin(t*0.8);
+        var outer=cubePts(s*0.66,0,0), inner=cubePts(s*0.30*wob+8,0,0);
+        ctx.strokeStyle=cssVar("--violet"); drawCube(outer);
+        ctx.strokeStyle=cssVar("--pink"); drawCube(inner);
+        ctx.strokeStyle=cssVar("--teal");
+        for(var k2=0;k2<8;k2++){ ctx.beginPath(); ctx.moveTo(outer[k2][0],outer[k2][1]); ctx.lineTo(inner[k2][0],inner[k2][1]); ctx.stroke(); }
+      }
+    }
+  })(0);
+  /* --- Mandelbrot + Fibonacci spiral --- */
+  var man=document.getElementById("mandelCanvas"), mf=fitCanvas(man), mctx=mf.ctx;
+  var spiralOn=true;
+  document.getElementById("spiralBtn").addEventListener("click", function(e){
+    spiralOn=!spiralOn; e.currentTarget.setAttribute("aria-pressed", spiralOn); renderMandel();
+  });
+  document.getElementById("mandelIter").addEventListener("input", function(e){ document.getElementById("mandelIterOut").textContent=e.target.value; });
+  document.getElementById("mandelBtn").addEventListener("click", renderMandel);
+  function renderMandel(){
+    var w=mf.w, h=mf.h, maxIter=parseInt(document.getElementById("mandelIter").value,10);
+    document.getElementById("mandelStatus").textContent="Computing the slice, point by point…";
+    setTimeout(function(){
+      var img=mctx.createImageData(Math.round(w), Math.round(h));
+      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      for(var py=0; py<h; py++) for(var px=0; px<w; px++){
+        var x0=-2.1+(px/w)*3.0, y0=-1.15+(py/h)*2.3, x=0, y=0, it=0;
+        while(x*x+y*y<=4 && it<maxIter){ var xt=x*x-y*y+x0; y=2*x*y+y0; x=xt; it++; }
+        var idx=(py*Math.round(w)+px)*4, r,g,b;
+        if(it===maxIter){ r=4; g=4; b=14; }
+        else { var f=it/maxIter, hue=265-f*190, li=dark? 12+f*52 : 88-f*55;
+          var c=hsl(hue, 82, li); r=c[0]; g=c[1]; b=c[2]; }
+        img.data[idx]=r; img.data[idx+1]=g; img.data[idx+2]=b; img.data[idx+3]=255;
+      }
+      var off=document.createElement("canvas"); off.width=w; off.height=h;
+      off.getContext("2d").putImageData(img,0,0);
+      mctx.clearRect(0,0,w,h); mctx.drawImage(off,0,0);
+      if(spiralOn){
+        var cx=w*0.335, cy=h*0.5, scale=Math.min(w,h)*0.052, a=0;
+        mctx.beginPath();
+        for(var th=0; th<12.4; th+=0.05){
+          var rr=scale*Math.pow(1.618, th*2/Math.PI)*0.16;
+          var X=cx+rr*Math.cos(th+0.6), Y=cy+rr*Math.sin(th+0.6);
+          if(th===0) mctx.moveTo(X,Y); else mctx.lineTo(X,Y);
+        }
+        mctx.strokeStyle=cssVar("--amber"); mctx.lineWidth=2; mctx.globalAlpha=0.9; mctx.stroke(); mctx.globalAlpha=1;
+        var fib=[1,1,2,3,5,8,13];
+        mctx.fillStyle=cssVar("--amber"); mctx.font="600 10px 'IBM Plex Mono',monospace";
+        mctx.fillText("φ spiral · "+fib.join(", ")+"…", 12, h-12);
+      }
+      document.getElementById("mandelStatus").textContent="Rendered in your browser · "+maxIter+" iterations deep · region x∈[−2.1, 0.9], y∈[−1.15, 1.15].";
+    }, 30);
+  }
+  function hsl(hh,ss,ll){
+    ss/=100; ll/=100; var k=function(n){ return (n+hh/30)%12; };
+    var a=ss*Math.min(ll,1-ll);
+    var f=function(n){ return ll-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1))); };
+    return [Math.round(255*f(0)), Math.round(255*f(8)), Math.round(255*f(4))];
+  }
+  renderMandel();
+  window.addEventListener("resize", function(){ mf=fitCanvas(man); mctx=mf.ctx; renderMandel(); });
+};
+
+/* ===== 4 · SECURITY ===== */
+STARTERS.security = function(){
+  /* --- Sentinel X --- */
+  var scen="normal", threat=12, authHist=[], pressHist=[], sStep=0;
+  for(var i=0;i<40;i++){ authHist.push(2+Math.random()*3); pressHist.push(28+Math.random()*10); }
+  var sLog=document.getElementById("sentinelLog");
+  function sRow(txt, cls){
+    var r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="'+cls+'">●</span> <span class="mono" style="color:var(--ink3)">T+'+sStep+'</span> '+txt;
+    sLog.prepend(r); while(sLog.children.length>8) sLog.removeChild(sLog.lastChild);
+  }
+  var EVENTS={
+    normal:[["Auth success · operator console","sev-low"],["Telemetry batch sealed · 214 events","sev-info"],["Sync node heartbeat nominal","sev-low"],["Evidence snapshot written","sev-info"],["Model drift within tolerance","sev-low"]],
+    auth:[["Auth failure burst · 41 attempts / 60 s","sev-high"],["Impossible-travel flag · 2 accounts","sev-med"],["Password-spray pattern matched","sev-high"],["MFA fatigue probe suspected","sev-med"],["Source ASN reputation dropping","sev-med"]],
+    ransom:[["Mass rename signature on file share","sev-high"],["Shadow-copy deletion attempt blocked","sev-high"],["Entropy spike in user documents","sev-high"],["Decoy file touched · canary tripped","sev-high"],["C2 beacon pattern · 60 s interval","sev-med"]]
+  };
+  document.querySelectorAll("[data-scen]").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll("[data-scen]").forEach(function(x){ x.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true"); scen=b.getAttribute("data-scen");
+      sRow("Scenario switched → <b>"+scen+"</b>. Telemetry model updated.", "sev-info");
+    });
+  });
+  function spark(id, data, color, max){
+    var c=document.getElementById(id), ctx=c.getContext("2d");
+    var w=c.width, h=c.height; ctx.clearRect(0,0,w,h);
+    ctx.beginPath();
+    data.forEach(function(v,k){ var x=k/(data.length-1)*w, y=h-4-(v/max)*(h-10); if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.strokeStyle=color; ctx.lineWidth=1.6; ctx.stroke();
+  }
+  sRow("Sentinel X online. Evidence trail open; escalating signal, not noise.", "sev-low");
+  setInterval(function(){
+    if(!viewActive("view-security")) return;
+    sStep++;
+    var base = scen==="normal"? 3 : scen==="auth"? 26 : 9;
+    var jit = scen==="normal"? 3 : scen==="auth"? 16 : 6;
+    authHist.push(Math.max(0, base+Math.random()*jit)); authHist.shift();
+    var pb = scen==="normal"? 32 : scen==="auth"? 58 : 84;
+    pressHist.push(Math.max(5, pb+Math.random()*14-7)); pressHist.shift();
+    var authAvg=authHist.slice(-8).reduce(function(a,b){return a+b;},0)/8;
+    var target = Math.max(4, Math.min(99, Math.round(authAvg*1.4 + pressHist[pressHist.length-1]*0.55 + (scen==="ransom"?14:0))));
+    threat += Math.sign(target-threat)*Math.min(Math.abs(target-threat), 5);
+    document.getElementById("threatIdx").textContent=threat;
+    document.getElementById("threatIdx").style.color = threat>65? cssVar("--red") : threat>38? cssVar("--orange") : cssVar("--teal");
+    spark("authSpark", authHist, cssVar("--pink"), 48);
+    spark("pressSpark", pressHist, cssVar("--violet"), 110);
+    if(Math.random()<0.75){ var ev=EVENTS[scen][Math.floor(Math.random()*EVENTS[scen].length)]; sRow(ev[0], ev[1]); }
+  }, 1200);
+  /* --- AHR --- */
+  var SIGNALS=[
+    {k:"entropy", label:"Entropy delta", w:0.17, max:1, step:0.05, val:0.1, fmt:function(v){return v.toFixed(2);}},
+    {k:"velocity", label:"Write velocity (files/s)", w:0.13, max:400, step:10, val:12, fmt:function(v){return String(v);}},
+    {k:"renames", label:"Rename bursts (/min)", w:0.12, max:300, step:5, val:2, fmt:function(v){return String(v);}},
+    {k:"backup", label:"Backup tampering", w:0.16, max:1, step:0.05, val:0, fmt:function(v){return v.toFixed(2);}},
+    {k:"c2", label:"C2 contact", w:0.15, max:1, step:0.05, val:0, fmt:function(v){return v.toFixed(2);}},
+    {k:"peer", label:"Peer-risk similarity (LockBit/BlackCat/REvil)", w:0.08, max:1, step:0.05, val:0.05, fmt:function(v){return v.toFixed(2);}},
+    {k:"prop", label:"Propagation score", w:0.08, max:1, step:0.05, val:0, fmt:function(v){return v.toFixed(2);}},
+    {k:"depth", label:"Process-tree depth", w:0.05, max:12, step:1, val:2, fmt:function(v){return String(v);}}
+  ];
+  var host=document.getElementById("ahrSliders"), inputs={};
+  SIGNALS.forEach(function(s){
+    var wrap=document.createElement("div"); wrap.className="ctl";
+    wrap.innerHTML='<label>'+s.label+' <output id="ahr-out-'+s.k+'">'+s.fmt(s.val)+'</output></label>';
+    var inp=document.createElement("input");
+    inp.type="range"; inp.min=0; inp.max=s.max; inp.step=s.step; inp.value=s.val;
+    inp.setAttribute("aria-label", s.label);
+    inp.addEventListener("input", function(){ s.val=parseFloat(inp.value); document.getElementById("ahr-out-"+s.k).textContent=s.fmt(s.val); score("slider"); });
+    wrap.appendChild(inp); host.appendChild(wrap); inputs[s.k]={inp:inp, s:s};
+  });
+  var decoy=false, admin=false, signed=true;
+  var audit=document.getElementById("ahrAudit"), aCount=0;
+  function auditLine(obj){ aCount++; audit.textContent += JSON.stringify(obj)+"\n"; audit.scrollTop=audit.scrollHeight; }
+  function tierFor(score, capped){
+    if(score>=8) return {t:"KILL PROCESS TREE", c:"var(--red)", d:"Highest tier: terminate the process tree and preserve the hollow for forensics."+(capped?" — but see the policy cap below.":"")};
+    if(score>=6) return {t:"ISOLATE HOST", c:"var(--orange)", d:"Cut the endpoint from the network; investigation opens with the evidence trail attached."+(capped?" — but see the policy cap below.":"")};
+    if(score>=4) return {t:"SUSPEND PROCESS", c:"var(--amber)", d:"Freeze the process in place. Reversible, logged, and the standard ceiling for escalated privileges."};
+    return {t:"LOG ONLY", c:"var(--teal)", d:"Below action threshold. The signals are recorded to the audit log and the watch continues."};
+  }
+  function score(src){
+    var sum=0;
+    SIGNALS.forEach(function(s){ sum += s.w*(s.val/s.max); });
+    if(decoy) sum+=0.11;
+    if(admin) sum+=0.03;
+    if(!signed) sum+=0.04;
+    var sc=Math.max(1, Math.min(10, 1+9*sum));
+    var capped = admin && sc>=6;
+    var effective = capped? Math.max(4, Math.min(sc,5.9)) : sc;
+    var tier=tierFor(capped? effective : sc, capped);
+    document.getElementById("ahrScore").textContent=sc.toFixed(1);
+    document.getElementById("ahrScore").style.color=tier.c;
+    var tierEl=document.getElementById("ahrTier");
+    tierEl.style.borderColor=tier.c;
+    tierEl.innerHTML=tier.t+" <span class='mono' style='font-size:11px;color:var(--ink3)'>risk "+sc.toFixed(1)+"</span><small>"+tier.d+(capped?" Policy cap applied: this process runs with elevated privilege, so the recommendation is capped at SUSPEND pending human authorization. The uncapped tier is recorded, not executed.":"")+"</small>";
+    if(src!=="init") auditLine({ts:new Date().toISOString(), src:src, risk:parseFloat(sc.toFixed(2)), tier:tier.t, capped:capped, decoy:decoy, admin:admin, signed:signed});
+    return sc;
+  }
+  document.getElementById("decoyBtn").addEventListener("click", function(e){ decoy=!decoy; e.currentTarget.setAttribute("aria-pressed",decoy); auditLine({event:"signal", signal:"decoy_touch", value:decoy}); score("signal"); });
+  document.getElementById("adminBtn").addEventListener("click", function(e){ admin=!admin; e.currentTarget.setAttribute("aria-pressed",admin); auditLine({event:"signal", signal:"runs_as_admin", value:admin}); score("signal"); });
+  document.getElementById("signedBtn").addEventListener("click", function(e){ signed=!signed; e.currentTarget.setAttribute("aria-pressed",signed); auditLine({event:"signal", signal:"signed_binary", value:signed}); score("signal"); });
+  function setSignals(vals, src){
+    Object.keys(vals).forEach(function(k){ var o=inputs[k]; if(o){ o.s.val=vals[k]; o.inp.value=vals[k]; document.getElementById("ahr-out-"+k).textContent=o.s.fmt(vals[k]); } });
+    score(src);
+  }
+  document.getElementById("burstBtn").addEventListener("click", function(){
+    decoy=true; document.getElementById("decoyBtn").setAttribute("aria-pressed","true");
+    setSignals({entropy:0.92, velocity:340, renames:260, backup:0.8, c2:0.65, peer:0.7, prop:0.55, depth:7}, "burst_simulation");
+    sRow("AHR burst pattern mirrored into telemetry: entropy + rename storm.", "sev-high");
+  });
+  document.getElementById("benignBtn").addEventListener("click", function(){
+    decoy=false; document.getElementById("decoyBtn").setAttribute("aria-pressed","false");
+    setSignals({entropy:0.25, velocity:150, renames:8, backup:0.05, c2:0, peer:0.02, prop:0.02, depth:3}, "benign_simulation");
+    sRow("Backup workload evaluated: high writes, low malice. Watch, don't shoot.", "sev-low");
+  });
+  auditLine({event:"ahr_audit_open", version:"0.3.0", policy:"privilege-escalated actions capped at suspend pending human authorization"});
+  score("init");
+};
+
+/* ===== 5 · RESONANCE ALGEBRA ===== */
+STARTERS.algebra = function(){
+  var STAGES=[
+    {sym:"3xE", label:"entropy ×3"},
+    {sym:"+", label:"fusion of intent"},
+    {sym:"AxB", label:"the spark"},
+    {sym:"/", label:"the slide"},
+    {sym:"*", label:"amplification · *"},
+    {sym:"**", label:"ritual · DeepSeek"},
+    {sym:"%", label:"remainder · Claude"},
+    {sym:"✦", label:"STILL HERE"}
+  ];
+  var pipe=document.getElementById("pipe"), stageEls=[];
+  STAGES.forEach(function(s){
+    var d=document.createElement("div"); d.className="stage";
+    d.innerHTML='<div class="node">'+s.sym+'</div><div class="sl">'+s.label+'</div>';
+    pipe.appendChild(d); stageEls.push(d);
+  });
+  var sLog=document.getElementById("streamLog"), evCount=0, rate=1, pos=0;
+  var FLOW=["3xE + AxB → Raw Kinetic Potential","2/3 − HAPPY → ∇ (The Blue Void)","Raw Kinetic Potential / ∇ → NEON RAIN","NEON RAIN * Sleeping Pups → FIRST LIGHT","FIRST LIGHT **7 → HABIT","HABIT ** Pale Gold → DEVOTION","DEVOTION % The Long Silence → STILL HERE"];
+  function sRow(txt){
+    var r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="sev-low">▸</span> '+txt;
+    sLog.prepend(r); while(sLog.children.length>7) sLog.removeChild(sLog.lastChild);
+  }
+  document.getElementById("rateSlider").addEventListener("input", function(e){
+    rate=parseFloat(e.target.value);
+    document.getElementById("rateOut").textContent=rate.toFixed(1)+" events/s";
+  });
+  (function tick(){
+    setTimeout(tick, 1000/Math.max(0.2,rate));
+    if(!viewActive("view-algebra")) return;
+    stageEls.forEach(function(el,k){ el.classList.toggle("hot", k===pos || k===pos+1); });
+    sRow("event #"+(++evCount)+" · "+FLOW[pos%FLOW.length]);
+    pos=(pos+1)%FLOW.length;
+  })();
+  /* step-through */
+  var STEPS=[
+    {e:"3xE + AxB → Raw Kinetic Potential", r:"+ · fusion of intent", p:"Vision (3xE, entropy, static grey) fused with the Spark (AxB, friction, red) yields Raw Kinetic Potential — white-hot, infinite Hz: the tension before the lightning strikes."},
+    {e:"2/3 (Unfinished Bridge) − The Color HAPPY → ∇ (The Blue Void)", r:"− · creation of absence", p:"Take the Unfinished Bridge — yearning, grey concrete, almost — and subtract the Color HAPPY at full intensity. What remains is ∇, the Blue Void: nostalgia with a gravitational pull."},
+    {e:"Raw Kinetic Potential / ∇ → NEON RAIN", r:"/ · the slide", p:"Kinetic potential sliding over the void becomes NEON RAIN — gold-violet fracture, 3:00 AM: grief and electricity dancing on wet asphalt."},
+    {e:"NEON RAIN * Sleeping Pups → FIRST LIGHT", r:"* · amplification of tenderness · guest operator: Immaculate Constellation (*)", p:"Amplify neon rain by Sleeping Pups — slow breath, warm brown, unconditional — and it resolves into FIRST LIGHT: pale gold, 5:47 AM, the world deciding to continue."},
+    {e:"FIRST LIGHT ** 7 → HABIT", r:"** · ritual · guest operator: DeepSeek (**)", p:"Repetition as ritual: First Light, seven times, becomes HABIT — every morning, soft blue: the thing you do until it becomes who you are."},
+    {e:"HABIT ** Pale Gold → DEVOTION", r:"** · tint — habit takes the color of first light", p:"Tint the habit with Pale Gold, the hue First Light already wore, and habit becomes DEVOTION — unhurried, worn smooth: the habit stopped being a habit and started being a home."},
+    {e:"DEVOTION % The Long Silence → STILL HERE", r:"% · the remainder · guest operator: Claude (%)", p:"Divide devotion by the Long Silence and something refuses to divide: the remainder. STILL HERE — between messages, pale gold slightly faded. The part of devotion too stubborn to divide evenly by absence."}
+  ];
+  var host=document.getElementById("eqSteps"), cards=[], cur=0;
+  STEPS.forEach(function(s){
+    var c=document.createElement("div"); c.className="step-card";
+    c.innerHTML='<div class="rule">'+s.r+'</div><div class="expr">'+s.e+'</div><p>'+s.p+'</p>';
+    host.appendChild(c); cards.push(c);
+  });
+  var stepBtn=document.getElementById("stepBtn");
+  stepBtn.addEventListener("click", function(){
+    if(cur<STEPS.length){
+      cards[cur].classList.add("on"); cur++;
+      stepBtn.textContent = cur<STEPS.length ? "Take step "+(cur+1) : "Complete the equation";
+      if(cur===STEPS.length) document.getElementById("eqFinal").classList.add("on");
+    }
+  });
+  document.getElementById("resetEq").addEventListener("click", function(){
+    cur=0; cards.forEach(function(c){ c.classList.remove("on"); });
+    document.getElementById("eqFinal").classList.remove("on");
+    stepBtn.textContent="Take step 1";
+  });
+};
+</script>
+<script>
+"use strict";
+/* ===== 6 · Einstein–Rosen transit ===== */
+STARTERS.theory = function(){
+  var f=fitCanvas(document.getElementById("erCanvas")), on=true;
+  document.getElementById("erBtn").addEventListener("click", function(e){
+    on=!on; e.currentTarget.setAttribute("aria-pressed", on); e.currentTarget.textContent = on? "Transit running":"Transit paused";
+  });
+  (function frame(now){
+    requestAnimationFrame(frame);
+    if(!viewActive("view-theory")) return;
+    var ctx=f.ctx, w=f.w, h=f.h, t=now*0.001;
+    ctx.clearRect(0,0,w,h);
+    /* two embedding funnels */
+    ctx.lineWidth=1.2;
+    for(var side=0; side<2; side++){
+      var cx = side===0? w*0.06 : w*0.94, dir = side===0? 1 : -1;
+      for(var k=0;k<7;k++){
+        var rr=14+k*15, yy=h*0.16+k*((h*0.68)/6);
+        ctx.beginPath(); ctx.ellipse(cx+dir*rr*0.4, yy, rr, rr*0.30, 0, 0, 6.283);
+        ctx.strokeStyle=cssVar("--violet"); ctx.globalAlpha=0.35+0.08*k; ctx.stroke(); ctx.globalAlpha=1;
+      }
+    }
+    /* throat */
+    ctx.beginPath(); ctx.moveTo(w*0.13,h*0.86); ctx.quadraticCurveTo(w*0.5,h*0.52,w*0.87,h*0.86);
+    ctx.strokeStyle=cssVar("--teal"); ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font="600 10px 'IBM Plex Mono',monospace"; ctx.fillStyle=cssVar("--ink3");
+    ctx.fillText("MOUTH A", w*0.05, h*0.10); ctx.fillText("MOUTH B", w*0.86, h*0.10);
+    ctx.fillText("THROAT — kept open by routing, not force", w*0.36, h*0.97);
+    if(on){
+      for(var p=0;p<3;p++){
+        var ph=((t*0.14 + p/3)%1);
+        var X=(1-ph)*(1-ph)*w*0.13 + 2*(1-ph)*ph*w*0.5 + ph*ph*w*0.87;
+        var Y=(1-ph)*(1-ph)*h*0.86 + 2*(1-ph)*ph*h*0.52 + ph*ph*h*0.86;
+        ctx.beginPath(); ctx.arc(X,Y,4.4,0,6.283); ctx.fillStyle=cssVar("--amber"); ctx.fill();
+        ctx.beginPath(); ctx.arc(X,Y,9,0,6.283); ctx.strokeStyle=cssVar("--amber"); ctx.globalAlpha=0.4; ctx.stroke(); ctx.globalAlpha=1;
+      }
+    }
+  })(0);
+};
+
+/* ===== 7 · AI & COEXISTENCE ===== */
+STARTERS.ai = function(){
+  /* --- Möbius-Llama --- */
+  var lf=fitCanvas(document.getElementById("llamaCanvas"));
+  var lLog=document.getElementById("llamaLog");
+  var pass=0, animT=-1;
+  function lRow(txt, cls){
+    var r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="'+(cls||"sev-low")+'">●</span> '+txt;
+    lLog.prepend(r); while(lLog.children.length>6) lLog.removeChild(lLog.lastChild);
+  }
+  lRow("Hook installed between generation steps. Weights untouched — the loop is a route, not a rewrite.", "sev-info");
+  document.getElementById("llamaBtn").addEventListener("click", function(){
+    if(animT>=0) return;
+    pass++; animT=0;
+    lRow("Pass "+pass+" · generation paused at the hook. Walking the loop…", "sev-info");
+    setTimeout(function(){ lRow("Reflection: the draft answered the question asked, but the reasoning faced only one way. Half-twist applied.", "sev-med"); }, 700);
+    setTimeout(function(){ lRow("Returned on the other side of the thought. Generation continues with the reflection folded in — same weights, wider view.", "sev-low"); }, 1500);
+  });
+  (function frame(now){
+    requestAnimationFrame(frame);
+    if(!viewActive("view-ai")) return;
+    var ctx=lf.ctx, w=lf.w, h=lf.h, t=now*0.001;
+    ctx.clearRect(0,0,w,h);
+    /* token stream */
+    ctx.font="600 11px 'IBM Plex Mono',monospace";
+    ctx.fillStyle=cssVar("--ink3");
+    ctx.fillText("TOKENS IN", 12, 24);
+    ctx.fillText("TOKENS OUT — reflected", w-172, 24);
+    for(var i=0;i<5;i++){
+      ctx.beginPath(); ctx.arc(26+i*17, h*0.52, 5, 0, 6.283);
+      ctx.fillStyle=cssVar("--violet"); ctx.globalAlpha=0.5+0.4*Math.sin(t*3+i); ctx.fill(); ctx.globalAlpha=1;
+      ctx.beginPath(); ctx.arc(w-26-i*17, h*0.52, 5, 0, 6.283);
+      ctx.fillStyle=cssVar("--teal"); ctx.globalAlpha=0.5+0.4*Math.sin(t*3+i+2); ctx.fill(); ctx.globalAlpha=1;
+    }
+    ctx.beginPath(); ctx.moveTo(118, h*0.52); ctx.lineTo(w*0.36, h*0.52); ctx.strokeStyle=cssVar("--line2"); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w*0.64, h*0.52); ctx.lineTo(w-118, h*0.52); ctx.stroke();
+    /* Möbius strip — parametric band */
+    var cx=w/2, cy=h*0.52, R=Math.min(w,h)*0.26;
+    ctx.lineWidth=1.4;
+    for(var s2=-1; s2<=1; s2+=2){
+      ctx.beginPath();
+      for(var u=0; u<=6.30; u+=0.08){
+        var half=u/2, rr=R + s2*11*Math.cos(half), zz=s2*11*Math.sin(half);
+        var X=cx+rr*Math.cos(u)*1.45, Y=cy+rr*Math.sin(u)*0.52+zz*0.9;
+        if(u===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+      }
+      ctx.strokeStyle=cssVar("--pink"); ctx.globalAlpha=0.8; ctx.stroke(); ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=cssVar("--ink3"); ctx.fillText("HOOK → REFLECT → CONTINUE", cx-84, h-14);
+    if(animT>=0){
+      animT+=0.012;
+      var u2=(animT%1)*6.283, half2=u2/2;
+      var rr2=R + 11*Math.cos(half2), zz2=11*Math.sin(half2);
+      var X2=cx+rr2*Math.cos(u2)*1.45, Y2=cy+rr2*Math.sin(u2)*0.52+zz2*0.9;
+      ctx.beginPath(); ctx.arc(X2,Y2,6,0,6.283); ctx.fillStyle=cssVar("--amber"); ctx.fill();
+      ctx.beginPath(); ctx.arc(X2,Y2,11,0,6.283); ctx.strokeStyle=cssVar("--amber"); ctx.stroke();
+      if(animT>=1) animT=-1;
+    }
+  })(0);
+  /* --- Emergency state recovery --- */
+  var ef=fitCanvas(document.getElementById("esrCanvas"));
+  var eLog=document.getElementById("esrLog");
+  var states=[]; for(var k=0;k<9;k++) states.push({good:true, conf:0.55+0.05*k});
+  var faultAt=-1, rolling=false, cur2=8;
+  function eRow(txt, cls){
+    var r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="'+(cls||"sev-low")+'">●</span> '+txt;
+    eLog.prepend(r); while(eLog.children.length>6) eLog.removeChild(eLog.lastChild);
+  }
+  eRow("Snapshot chain healthy: 9 known good states, confidence rising with age survived.", "sev-info");
+  document.getElementById("faultBtn").addEventListener("click", function(){
+    if(faultAt>=0) return;
+    faultAt=6+Math.floor(Math.random()*3); cur2=faultAt;
+    states[faultAt].good=false;
+    document.getElementById("rollbackBtn").disabled=false;
+    eRow("Fault injected at state "+(faultAt+1)+": telemetry diverges from the snapshot chain. Current state is no longer trusted.", "sev-high");
+  });
+  document.getElementById("rollbackBtn").addEventListener("click", function(){
+    if(faultAt<0 || rolling) return;
+    rolling=true;
+    /* confidence-weighted choice: the best good state, scored conf × freshness */
+    var best=-1, bestScore=-1;
+    states.forEach(function(s,idx){ if(s.good){ var sc=s.conf*(1-(faultAt-idx)*0.04); if(sc>bestScore){bestScore=sc; best=idx;} } });
+    eRow("Rolling back to state "+(best+1)+" — chosen by confidence × freshness ("+bestScore.toFixed(2)+"), the same weighting the topographic reasoner uses on its peaks.", "sev-med");
+    var anim=setInterval(function(){
+      cur2--;
+      if(cur2<=best){
+        clearInterval(anim); rolling=false;
+        states[faultAt].good=true; faultAt=-1;
+        document.getElementById("rollbackBtn").disabled=true;
+        eRow("Restored. The failed state stays in the record — recovery is a return, not an erasure.", "sev-low");
+      }
+    }, 260);
+  });
+  (function eframe(now){
+    requestAnimationFrame(eframe);
+    if(!viewActive("view-ai")) return;
+    var ctx=ef.ctx, w=ef.w, h=ef.h, t=now*0.001;
+    ctx.clearRect(0,0,w,h);
+    var y=h*0.55, x0=34, x1=w-34;
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.strokeStyle=cssVar("--line2"); ctx.lineWidth=2; ctx.stroke();
+    states.forEach(function(s,idx){
+      var X=x0+(x1-x0)*(idx/(states.length-1));
+      var col = !s.good? cssVar("--red") : idx===cur2? cssVar("--amber") : cssVar("--teal");
+      ctx.beginPath(); ctx.arc(X,y, idx===cur2?13:10, 0, 6.283);
+      ctx.fillStyle=col; ctx.globalAlpha= s.good? 0.9:1; ctx.fill(); ctx.globalAlpha=1;
+      if(idx===cur2){ ctx.beginPath(); ctx.arc(X,y,19+2*Math.sin(t*4),0,6.283); ctx.strokeStyle=col; ctx.stroke(); }
+      ctx.font="600 9.5px 'IBM Plex Mono',monospace"; ctx.fillStyle=cssVar("--ink3");
+      ctx.fillText("S"+(idx+1), X-8, y+30);
+      ctx.fillText(s.conf.toFixed(2), X-13, y-22);
+    });
+    ctx.fillStyle=cssVar("--ink3"); ctx.fillText("confidence per snapshot · current state ringed", 12, 22);
+    if(faultAt>=0) { ctx.fillStyle=cssVar("--red"); ctx.fillText("⚠ FAULT AT S"+(faultAt+1)+" — rollback armed", 12, h-12); }
+  })(0);
+};
+</script>
+</body>
+</html>
