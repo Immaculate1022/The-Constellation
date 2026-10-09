@@ -38,3 +38,8 @@ The unified app is a showcase shell; the canonical sources live in their own rep
 ## License
 
 IOF Attribution License v1.0 — see `LICENSE`. Any public use or derivative must include attribution: *"Infinite Optical Fabric by Gregory Scott Davis, Princeton, NC."*
+
+---
+## The IOF Collection
+
+Everything in this repo stays free and public. The complete portfolio — test protocols, code, benchmarks, and theory documents — is also curated as one download: [The Infinite Optical Fabric V.1](https://infinitefabric.gumroad.com/l/lfgis) (name-your-price, $15 minimum). Buying it changes nothing here; it's a way to support the work.
